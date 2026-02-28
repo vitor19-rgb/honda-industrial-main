@@ -13,9 +13,9 @@
     <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-10">
         <div class="flex justify-between items-center max-w-3xl mx-auto">
             <div class="flex items-center">
-                <div class="w-10 h-10 rounded-full bg-honda-red flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">RM</div>
+                <div id="iniciais-tecnico" class="w-10 h-10 rounded-full bg-honda-red flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">--</div>
                 <div class="ml-3">
-                    <h1 class="font-bold text-sm leading-tight">Roberto Mendes</h1>
+                    <h1 id="nome-tecnico" class="font-bold text-sm leading-tight">Carregando...</h1>
                     <p class="text-xs text-gray-300">Técnico Eletromecânico</p>
                 </div>
             </div>
@@ -25,21 +25,22 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     <span id="badge-notificacao" class="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full hidden">0</span>
                 </button>
-
-                <a href="index.html" class="text-sm font-bold text-gray-300 hover:text-white transition">voltar à tela inicial</a>
+                <a href="perfis.html" class="text-sm font-bold text-gray-300 hover:text-white transition">Voltar aos Perfis</a>
             </div>
         </div>
     </header>
 
     <main class="max-w-3xl mx-auto p-4 mt-2">
-        <button onclick="abrirModalNovaOS()" class="touch-target w-full bg-red-600 hover:bg-red-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl flex items-center justify-center mb-6 transform transition active:scale-95 border-b-4 border-red-800">
+        <button id="btn-abrir-modal-os" class="touch-target w-full bg-red-600 hover:bg-red-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl flex items-center justify-center mb-6 transform transition active:scale-95 border-b-4 border-red-800">
             <svg class="w-7 h-7 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             ABRIR NOVA OS EMERGÊNCIAL
         </button>
 
-        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-sm mb-4 px-1">Minhas Ordens de Serviço</h2>
+        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-sm mb-4 px-1">Minhas Ordens de Serviço (Ao Vivo)</h2>
 
-        <div id="lista-os-container"></div>
+        <div id="lista-os-container">
+            <p class="text-center text-gray-500 p-6">A carregar dados da nuvem...</p>
+        </div>
     </main>
 
     <div id="toast-notificacao" class="fixed top-20 right-4 bg-white border-l-4 border-honda-red shadow-2xl rounded-lg p-4 z-50 transform transition-all duration-500 translate-x-full opacity-0 flex items-start gap-3 w-80">
@@ -47,44 +48,45 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </div>
         <div>
-            <h4 class="font-bold text-gray-800 text-sm">Novas Tarefas Recebidas!</h4>
-            <p id="texto-toast" class="text-xs text-gray-600 mt-1 leading-relaxed">Verificando atualizações do supervisor...</p>
+            <h4 class="font-bold text-gray-800 text-sm">Atualização na Nuvem!</h4>
+            <p id="texto-toast" class="text-xs text-gray-600 mt-1 leading-relaxed">A sincronizar...</p>
         </div>
-        <button onclick="fecharToast()" class="text-gray-400 hover:text-red-500 ml-auto">&times;</button>
+        <button id="btn-fechar-toast" class="text-gray-400 hover:text-red-500 ml-auto">&times;</button>
     </div>
 
     <div id="modal-nova-os" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
-            <button onclick="fecharModalNovaOS()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
+            <button id="btn-fechar-modal-os" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
             <h2 class="font-black text-xl mb-1 text-gray-800">Nova Corretiva</h2>
             <p class="text-xs text-gray-500 mb-4">Registe a máquina que apresentou falha na linha de produção.</p>
             
-            <form onsubmit="criarNovaOSForm(event)" class="space-y-4">
+            <form id="form-nova-os" class="space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Equipamento</label>
                     <select id="nova-os-maquina" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-honda-red" required>
+                        <option value="Prensa Hidráulica 04 (Linha B)">Prensa Hidráulica 04 (Linha B)</option>
+                        <option value="Robô de Solda A2">Robô de Solda A2</option>
+                        <option value="Esteira de Montagem Principal">Esteira de Montagem Principal</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Descrição do Problema</label>
                     <textarea id="nova-os-descricao" rows="3" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-honda-red" placeholder="O que aconteceu com a máquina?" required></textarea>
                 </div>
-                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition">Gerar Ordem de Serviço</button>
+                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition">Gerar Ordem de Serviço na Nuvem</button>
             </form>
         </div>
     </div>
 
     <div id="modal-historico" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative max-h-[80vh] flex flex-col">
-            <button onclick="fecharModalHistorico()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
+            <button id="btn-fechar-historico" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
             <h2 class="font-black text-lg mb-1 text-gray-800">Histórico de Manutenção</h2>
             <p id="historico-nome-maquina" class="text-sm font-bold text-honda-red mb-4 truncate"></p>
-            
-            <div id="conteudo-historico" class="overflow-y-auto space-y-3 flex-1 pr-2">
-            </div>
+            <div id="conteudo-historico" class="overflow-y-auto space-y-3 flex-1 pr-2"></div>
         </div>
     </div>
 
-    <script src="js/tecnico.js"></script>
+    <script type="module" src="js/tecnico.js"></script>
 </body>
 </html>

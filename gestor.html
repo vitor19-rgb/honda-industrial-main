@@ -3,124 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor / Gerente - Honda</title>
+    <title>Painel Executivo - Honda Industrial</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }
     </script>
     <link rel="stylesheet" href="css/global.css">
     <style>
-        /* Ocultar botões na hora de gerar o PDF (Relatório) */
         @media print {
-            header, .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .print-break { page-break-before: always; }
+            header, .no-print, button { display: none !important; }
+            body { background: white; }
+            .print-full { width: 100% !important; max-width: 100% !important; }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="bg-gray-100 min-h-screen font-sans">
 
     <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-20 flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-4 w-full md:w-auto">
-            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center font-bold shadow-sm">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+            <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center font-bold text-gray-900 shadow-sm shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
-                <h1 class="font-bold text-lg leading-tight">Dashboard Executivo</h1>
-                <p class="text-xs text-gray-300">Visão Estratégica, Custos e Produtividade</p>
+                <h1 class="font-bold text-lg leading-tight">Painel Executivo (Visão Global)</h1>
+                <p id="nome-gestor" class="text-xs text-yellow-400 font-bold">Diretoria Industrial</p>
             </div>
         </div>
-        <div class="flex items-center gap-4 w-full md:w-auto">
-            <button onclick="emitirRelatorioGerencial()" class="no-print bg-honda-red text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-red-800 transition flex items-center shadow-lg border border-red-900 w-full justify-center md:w-auto">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Emitir Relatório Gerencial
+        
+        <div class="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
+            <button id="btn-exportar" class="no-print bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition flex items-center shadow-sm">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Imprimir Balanço DRE
             </button>
-            <a href="index.html" class="no-print text-sm font-bold text-gray-300 hover:text-white transition whitespace-nowrap">Voltar</a>
+            <a href="perfis.html" class="no-print text-sm font-bold text-gray-300 hover:text-white transition whitespace-nowrap">Voltar aos Perfis</a>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto p-4 lg:p-8 mt-2">
+    <main class="max-w-7xl mx-auto p-4 lg:p-8 mt-4 print-full">
         
-        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-xs mb-3">Visão Geral Financeira e Operacional</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-honda-red flex flex-col justify-center">
-                <span class="text-xs text-gray-500 font-bold uppercase">Custos Totais de Manutenção</span>
-                <span id="kpi-custos" class="text-3xl font-black text-gray-800 mt-1">R$ 0,00</span>
-                <span class="text-xs text-gray-400 mt-1">Soma de peças e horas operacionais</span>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500 flex flex-col justify-center">
-                <span class="text-xs text-gray-500 font-bold uppercase">Orçamento Disponível</span>
-                <span id="kpi-orcamento" class="text-3xl font-black text-green-600 mt-1">R$ 0,00</span>
-                <div class="w-full bg-gray-200 rounded-full h-2 mt-3">
-                    <div id="barra-orcamento" class="bg-green-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
+            <h2 class="font-bold text-gray-800 text-lg flex items-center mb-4">
+                <span class="text-xl mr-2">💰</span> Controle de Orçamento de Manutenção (Sincronizado)
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Budget Mensal</p>
+                    <h3 class="text-2xl font-black text-gray-800 mt-1">R$ 50.000,00</h3>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                    <p class="text-xs text-red-500 font-bold uppercase">Custo Consumido (Mão de Obra + Peças)</p>
+                    <h3 id="kpi-custo-atual" class="text-2xl font-black text-red-600 mt-1">R$ 0,00</h3>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                    <p class="text-xs text-green-600 font-bold uppercase">Saldo Disponível</p>
+                    <h3 id="kpi-saldo" class="text-2xl font-black text-green-700 mt-1">R$ 50.000,00</h3>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500 flex flex-col justify-center">
-                <span class="text-xs text-gray-500 font-bold uppercase">Backlog (OS Acumuladas)</span>
-                <span id="kpi-backlog" class="text-4xl font-black text-orange-500 mt-1">0</span>
-                <span class="text-xs text-gray-400 mt-1">Chamados aguardando finalização</span>
+
+            <div>
+                <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
+                    <span>Consumo do Orçamento</span>
+                    <span id="percentual-orcamento">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
+                    <div id="barra-orcamento" class="bg-honda-red h-4 rounded-full transition-all duration-1000 ease-out w-0"></div>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
-                <div class="flex items-center mb-4 border-b pb-2">
-                    <span class="text-xl mr-2">👥</span>
-                    <h3 class="font-bold text-gray-800 text-lg">Produtividade da Equipa Técnica</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-yellow-200">
+                <h2 class="font-bold text-gray-800 text-lg flex items-center mb-4 border-b pb-2">
+                    <span class="text-xl mr-2">⚖️</span> Inbox de Aprovações (CAPEX)
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">Pedidos de compra de equipamentos de alto custo enviados pela Engenharia.</p>
+                
+                <div id="lista-capex" class="space-y-4">
+                    <p class="text-sm text-gray-500 italic text-center">Carregando pedidos da nuvem...</p>
                 </div>
-                <div class="overflow-x-auto flex-1">
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="font-bold text-gray-800 text-lg flex items-center mb-4 border-b pb-2">
+                    <span class="text-xl mr-2">📈</span> Ranking de Produtividade Técnica
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">Baseado em OS Finalizadas e Horas Validadas pela Supervisão.</p>
+                
+                <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-[10px] font-black tracking-wider">
                                 <th class="p-3 rounded-tl-lg">Técnico</th>
-                                <th class="p-3 text-center">OS Concluídas</th>
-                                <th class="p-3 text-center rounded-tr-lg">Tempo Médio de Resolução</th>
+                                <th class="p-3 text-center">OS Fechadas</th>
+                                <th class="p-3 text-center rounded-tr-lg">Horas Trabalhadas</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-desempenho">
-                            </tbody>
+                        <tbody id="tabela-produtividade">
+                            <tr><td colspan="3" class="p-4 text-center text-sm text-gray-500">Calculando dados ao vivo...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="font-bold text-gray-800 text-sm mb-4 border-b pb-2 text-center">Balanço de Manutenção</h3>
-                <div class="relative h-48">
-                    <canvas id="chartManutencao"></canvas>
-                </div>
-            </div>
-
         </div>
-
-        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-xs mb-3 mt-8 print-break">Painel de Decisões Executivas</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-100 p-6 rounded-2xl border border-gray-300">
-            
-            <div>
-                <div class="flex items-center mb-4">
-                    <span class="text-xl mr-2">⏱️</span>
-                    <h3 class="font-bold text-gray-800 text-md">Solicitações de Parada Programada</h3>
-                </div>
-                <p class="text-xs text-gray-500 mb-4">Aprove paragens de linha para manutenções preventivas pesadas.</p>
-                <div id="lista-paradas" class="space-y-3">
-                    </div>
-            </div>
-
-            <div>
-                <div class="flex items-center mb-4">
-                    <span class="text-xl mr-2">🏗️</span>
-                    <h3 class="font-bold text-gray-800 text-md">Investimento em Novos Ativos (CAPEX)</h3>
-                </div>
-                <p class="text-xs text-gray-500 mb-4">Analise a disponibilidade do ativo antes de aprovar compras caras.</p>
-                <div id="lista-investimentos" class="space-y-3">
-                    </div>
-            </div>
-
-        </div>
-
     </main>
 
-    <script src="js/gestor.js"></script>
+    <script type="module" src="js/gestor.js"></script>
 </body>
 </html>

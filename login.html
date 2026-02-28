@@ -3,33 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Corporativo</title>
+    <title>Login - Honda Industrial</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', darkred: '#990000', dark: '#333333' } } } } }</script>
-    <link rel="stylesheet" href="css/global.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }
+    </script>
+    <link rel="stylesheet" href="style.css"> 
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center font-sans text-honda-dark relative">
-    <a href="index.html" class="absolute top-4 right-4 text-gray-400 hover:text-honda-red bg-white rounded-full p-2 shadow transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </a>
+<body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center font-sans p-4 relative">
 
-    <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-2xl w-full max-w-md mx-4 text-center">
-        <img src="Honda-Header.svg" alt="Honda Logo" class="h-10 sm:h-12 mx-auto mb-6">
+    <div class="absolute top-0 left-0 w-full h-2 bg-honda-red"></div>
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center border border-gray-200">
         
-        <div id="login-form">
-            <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Acesso Restrito</h2>
-            <p class="text-gray-500 mb-6 sm:mb-8 text-sm">Identificação automática via rede corporativa.</p>
-            <button onclick="iniciarLogin()" class="w-full bg-honda-red text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-honda-darkred transition duration-300">
-                Entrar com Acesso Corporativo
-            </button>
+        <div class="flex justify-center mb-8">
+            <img src="Honda-Header.svg" alt="Logo Honda" class="h-8 md:h-10">
         </div>
+        
+        <h1 class="text-2xl font-black text-gray-800 mb-2">Acesso Restrito</h1>
+        <p class="text-sm text-gray-500 mb-8">Autentique-se com a sua conta corporativa para aceder ao chão de fábrica.</p>
 
-        <div id="loading-state" class="hidden py-6">
-            <div class="loader"></div>
-            <h3 class="text-lg font-bold text-gray-800">Autenticando...</h3>
-            <p class="text-gray-500 text-sm mt-2">Buscando perfil no sistema.</p>
+        <button id="btn-login-google" class="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition shadow-sm">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="w-6 h-6">
+            Entrar com o Google
+        </button>
+
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <a href="index.html" class="text-sm font-bold text-gray-400 hover:text-honda-red transition">Voltar à Tela Inicial</a>
         </div>
     </div>
-    <script src="js/app.js"></script>
+
+    <script type="module" src="js/login.js"></script>
 </body>
 </html>

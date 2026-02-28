@@ -1,237 +1,149 @@
 // js/supervisor.js
 
-// 1. INICIALIZAÇÃO DE DADOS 
-function inicializarDadosSupervisor() {
-    let equipe = localStorage.getItem('honda_equipe');
-    if (!equipe) {
-        const tecnicos = [
-            { id: "T1", nome: "Roberto Mendes", especialidade: "Eletromecânica" },
-            { id: "T2", nome: "Carlos Silva", especialidade: "Hidráulica" },
-            { id: "T3", nome: "Ana Costa", especialidade: "Automação" }
-        ];
-        localStorage.setItem('honda_equipe', JSON.stringify(tecnicos));
-    }
+import { db } from './firebase-config.js';
+import { 
+    collection, 
+    onSnapshot, 
+    doc, 
+    updateDoc,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    let atualizado = false;
+// Perfil do Usuário
+const nomeUser = localStorage.getItem('honda_user_name') || 'Supervisor';
+document.getElementById('nome-supervisor').innerText = `Gestão: ${nomeUser}`;
+document.getElementById('iniciais-supervisor').innerText = nomeUser.substring(0, 2).toUpperCase();
 
-    osLista.forEach(os => {
-        if (!os.prioridade) { os.prioridade = "Média"; atualizado = true; }
-        if (!os.tecnicoId) { os.tecnicoId = null; atualizado = true; }
-        if (!os.sla) { os.sla = "No Prazo"; atualizado = true; }
-        if (!os.tempoGasto) { os.tempoGasto = Math.floor(Math.random() * 60) + 30; atualizado = true; } 
-        if (!os.horasValidadas) { os.horasValidadas = false; atualizado = true; }
+let osGlobais = [];
+
+// Ouvinte em Tempo Real
+const q = query(collection(db, "honda_os_lista"), orderBy("dataCriacao", "desc"));
+
+onSnapshot(q, (snapshot) => {
+    osGlobais = [];
+    snapshot.forEach((doc) => {
+        osGlobais.push({ firestoreId: doc.id, ...doc.data() });
     });
+    renderizarDashboard();
+});
 
-    if (atualizado) {
-        localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
-    }
-}
+function renderizarDashboard() {
+    const colunas = {
+        Pendente: document.getElementById('col-pendente'),
+        'Em Andamento': document.getElementById('col-andamento'),
+        'Aguardando Peça': document.getElementById('col-peca'),
+        Finalizada: document.getElementById('col-finalizada')
+    };
 
-// 2. RENDERIZAÇÃO DO PAINEL
-function renderizarDashboardSupervisor() {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
+    Object.values(colunas).forEach(c => c.innerHTML = '');
 
-    let atrasadas = osLista.filter(os => os.sla === 'Atrasado' && os.status !== 'Finalizada').length;
-    let emergencias = osLista.filter(os => os.prioridade === 'Emergência' && os.status !== 'Finalizada').length;
-    
-    document.getElementById('kpi-atrasadas').innerText = atrasadas;
-    document.getElementById('kpi-emergencias').innerText = emergencias;
+    let kpis = { crit: 0, and: 0, val: 0 };
+    let counts = { Pendente: 0, 'Em Andamento': 0, 'Aguardando Peça': 0, Finalizada: 0 };
 
-    const listaEquipe = document.getElementById('lista-carga-equipe');
-    listaEquipe.innerHTML = '';
+    osGlobais.forEach(os => {
+        // Lógica de Contagem
+        if(os.prioridade === 'Emergência' && os.status !== 'Finalizada') kpis.crit++;
+        if(os.status === 'Em Andamento') kpis.and++;
+        if(os.status === 'Finalizada' && !os.horasValidadas) kpis.val++;
 
-    equipe.forEach(tec => {
-        let osAtivas = osLista.filter(os => os.tecnicoId === tec.id && os.status !== 'Finalizada').length;
+        let statusVisual = counts[os.status] !== undefined ? os.status : 'Pendente';
         
-        let corBarra = 'bg-green-500';
-        if (osAtivas >= 3) corBarra = 'bg-yellow-500';
-        if (osAtivas >= 5) corBarra = 'bg-red-500';
+        // Se estiver na Engenharia, visualmente fica na última coluna
+        if(os.status === 'Aguardando Engenharia') statusVisual = 'Finalizada';
+        counts[statusVisual]++;
+
+        // Criar Card
+        const card = document.createElement('div');
+        let classes = "relative p-3 rounded-xl shadow-sm border border-gray-100 bg-white hover:shadow-md transition ";
         
-        let percentagem = Math.min((osAtivas / 5) * 100, 100);
+        if(os.status === 'Aguardando Engenharia') classes += "opacity-60 border-dashed border-orange-300 ";
+        if(os.prioridade === 'Emergência' && os.status !== 'Finalizada') classes += "border-l-4 border-l-red-600 ";
+        
+        card.className = classes;
 
-        listaEquipe.innerHTML += `
-            <div class="mb-4">
-                <div class="flex justify-between text-sm font-bold text-gray-700 mb-1">
-                    <span>${tec.nome} (${tec.especialidade})</span>
-                    <span>${osAtivas} OS ativas</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="${corBarra} h-2.5 rounded-full transition-all duration-500" style="width: ${percentagem}%"></div>
-                </div>
+        let btnAcao = '';
+        if(os.status === 'Pendente') {
+            btnAcao = `
+                <select class="select-tec w-full mt-2 text-xs border rounded p-1 bg-gray-50" data-id="${os.firestoreId}">
+                    <option value="">Atribuir Técnico...</option>
+                    <option value="João Silva">João Silva</option>
+                    <option value="Roberto Mendes">Roberto Mendes</option>
+                    <option value="Maria Costa">Maria Costa</option>
+                </select>`;
+        } else if(os.status === 'Finalizada') {
+            if(os.horasValidadas) {
+                btnAcao = `<div class="mt-2 text-[10px] font-bold text-green-700 bg-green-100 py-1 rounded text-center">VALIDADO</div>`;
+            } else {
+                btnAcao = `<button class="btn-validar w-full mt-2 text-xs font-bold text-white bg-green-600 py-2 rounded" data-id="${os.firestoreId}">Validar ${os.tempoGasto} min</button>`;
+            }
+        } else if(os.status === 'Aguardando Engenharia') {
+            btnAcao = `<div class="mt-2 text-[10px] font-bold text-orange-600 italic">⏳ Aguardando Engenharia</div>`;
+        }
+
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-1">
+                <span class="text-[10px] font-black">OS #${os.numero}</span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase">${os.tecnicoNome || 'S/ Técnico'}</span>
             </div>
+            <h4 class="text-xs font-bold text-gray-700 leading-tight">${os.maquina}</h4>
+            <p class="text-[10px] text-gray-500 line-clamp-1">${os.descricao}</p>
+            ${btnAcao}
         `;
+
+        colunas[statusVisual].appendChild(card);
+    });
+
+    // Atualizar UI
+    document.getElementById('kpi-criticas').innerText = kpis.crit;
+    document.getElementById('kpi-andamento').innerText = kpis.and;
+    document.getElementById('kpi-validacao').innerText = kpis.val;
+    document.getElementById('count-pendente').innerText = counts.Pendente;
+    document.getElementById('count-andamento').innerText = counts['Em Andamento'];
+    document.getElementById('count-peca').innerText = counts['Aguardando Peça'];
+    document.getElementById('count-finalizada').innerText = counts.Finalizada;
+
+    renderizarCarga();
+    vincularEventos();
+}
+
+function renderizarCarga() {
+    const painel = document.getElementById('painel-carga-equipa');
+    painel.innerHTML = '';
+    let carga = {};
+    osGlobais.forEach(os => {
+        if((os.status === 'Em Andamento' || os.status === 'Aguardando Peça') && os.tecnicoNome) {
+            carga[os.tecnicoNome] = (carga[os.tecnicoNome] || 0) + 1;
+        }
+    });
+
+    Object.keys(carga).forEach(tec => {
+        let perc = Math.min((carga[tec] / 5) * 100, 100);
+        let cor = perc >= 80 ? 'bg-red-500' : 'bg-green-500';
+        painel.innerHTML += `
+            <div class="text-[10px]">
+                <div class="flex justify-between mb-1 font-bold"><span>${tec}</span><span>${carga[tec]} OS</span></div>
+                <div class="w-full bg-gray-200 h-1.5 rounded-full"><div class="${cor} h-1.5 rounded-full" style="width:${perc}%"></div></div>
+            </div>`;
     });
 }
 
-function renderizarDistribuicao() {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
-    const container = document.getElementById('lista-distribuicao');
-    container.innerHTML = '';
+function vincularEventos() {
+    document.querySelectorAll('.select-tec').forEach(s => {
+        s.addEventListener('change', async (e) => {
+            if(e.target.value) {
+                await updateDoc(doc(db, "honda_os_lista", e.target.dataset.id), { 
+                    tecnicoNome: e.target.value, status: 'Em Andamento' 
+                });
+            }
+        });
+    });
 
-    let osPendentes = osLista.filter(os => os.status === 'Pendente' || os.tecnicoId === null);
-    const pesoPrioridade = { "Emergência": 4, "Alta": 3, "Média": 2, "Baixa": 1 };
-    osPendentes.sort((a, b) => pesoPrioridade[b.prioridade] - pesoPrioridade[a.prioridade]);
-
-    if (osPendentes.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-sm italic p-4">Nenhuma OS aguardando distribuição.</p>';
-        return;
-    }
-
-    let optionsTecnicos = '<option value="">Atribuir a um Técnico...</option>';
-    equipe.forEach(tec => { optionsTecnicos += `<option value="${tec.id}">${tec.nome}</option>`; });
-
-    osPendentes.forEach(os => {
-        let corPrioridade = os.prioridade === 'Emergência' ? 'bg-red-600 text-white animate-pulse' : 
-                           (os.prioridade === 'Alta' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700');
-
-        container.innerHTML += `
-            <div class="bg-white border border-gray-200 rounded-xl p-4 mb-3 shadow-sm hover:shadow-md transition">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="font-black text-gray-800">OS #${os.id}</span>
-                    <span class="px-2 py-1 rounded text-xs font-bold ${corPrioridade}">${os.prioridade}</span>
-                </div>
-                <p class="text-sm font-bold text-gray-700 truncate">${os.maquina}</p>
-                <p class="text-xs text-gray-500 mb-3 line-clamp-1">${os.descricao}</p>
-                
-                <div class="flex flex-col sm:flex-row gap-2 items-center">
-                    <select id="atribuir-${os.id}" class="flex-1 border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-honda-red">
-                        ${optionsTecnicos}
-                    </select>
-                    <button onclick="atribuirOS('${os.id}')" class="bg-honda-dark text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-black transition w-full sm:w-auto">Enviar</button>
-                </div>
-                
-                <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                    <button onclick="mudarPrioridade('${os.id}', 'Alta')" class="text-xs text-orange-600 font-bold hover:underline">⬆️ Subir Prioridade</button>
-                    ${os.prioridade !== 'Emergência' ? `<button onclick="autorizarEmergencia('${os.id}')" class="text-xs text-red-600 font-bold hover:underline ml-auto">🚨 Forçar Emergência</button>` : ''}
-                </div>
-            </div>
-        `;
+    document.querySelectorAll('.btn-validar').forEach(b => {
+        b.addEventListener('click', async (e) => {
+            await updateDoc(doc(db, "honda_os_lista", e.target.dataset.id), { horasValidadas: true });
+        });
     });
 }
 
-// NOVO: ACOMPANHAR STATUS EM TEMPO REAL
-function renderizarStatusTempoReal() {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
-    const container = document.getElementById('lista-tempo-real');
-    container.innerHTML = '';
-
-    let osAtivas = osLista.filter(os => os.status === 'Em Andamento' || os.status === 'Aguardando Peça');
-
-    if (osAtivas.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-sm italic p-2">Nenhuma OS em execução no momento.</p>';
-        return;
-    }
-
-    osAtivas.forEach(os => {
-        let corStatus = os.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800';
-        let tecObj = equipe.find(t => t.id === os.tecnicoId);
-        let tecNome = tecObj ? tecObj.nome : 'Sem técnico';
-
-        container.innerHTML += `
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2 flex justify-between items-center shadow-sm">
-                <div>
-                    <span class="font-bold text-gray-800 text-sm">OS #${os.id}</span>
-                    <p class="text-xs text-gray-600 font-medium">Técnico: ${tecNome}</p>
-                </div>
-                <span class="px-2 py-1 rounded text-xs font-bold ${corStatus}">${os.status}</span>
-            </div>
-        `;
-    });
-}
-
-function renderizarValidacaoHoras() {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    const container = document.getElementById('lista-validacao');
-    container.innerHTML = '';
-
-    let osFinalizadas = osLista.filter(os => os.status === 'Finalizada' && !os.horasValidadas);
-
-    if (osFinalizadas.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-sm italic p-4">Nenhuma hora pendente de validação.</p>';
-        return;
-    }
-
-    osFinalizadas.forEach(os => {
-        container.innerHTML += `
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-3">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-bold text-gray-800">OS #${os.id}</span>
-                    <span class="text-sm text-gray-600">Tempo: <strong class="text-honda-dark">${os.tempoGasto} min</strong></span>
-                </div>
-                <p class="text-xs text-gray-500 mb-3">Técnico ID: ${os.tecnicoId || 'Não registado'}</p>
-                <button onclick="validarHoras('${os.id}')" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition">Validar Apontamento</button>
-            </div>
-        `;
-    });
-}
-
-// --- FUNÇÕES DE AÇÃO ---
-
-function atribuirOS(idOS) {
-    const select = document.getElementById(`atribuir-${idOS}`);
-    const tecnicoId = select.value;
-    
-    if(!tecnicoId) return alert("Por favor, selecione um técnico.");
-
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista'));
-    let os = osLista.find(o => o.id === idOS);
-    if(os) {
-        os.tecnicoId = tecnicoId;
-        os.status = "Em Andamento"; 
-        localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
-        alert(`OS #${idOS} atribuída e enviada para o tablet do técnico!`);
-        atualizarTudo();
-    }
-}
-
-function mudarPrioridade(idOS, novaPrioridade) {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista'));
-    let os = osLista.find(o => o.id === idOS);
-    if(os) {
-        os.prioridade = novaPrioridade;
-        localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
-        atualizarTudo();
-    }
-}
-
-function autorizarEmergencia(idOS) {
-    if(confirm("ATENÇÃO: Deseja classificar esta OS como EMERGÊNCIA? Isso irá disparar alertas para a equipa.")) {
-        mudarPrioridade(idOS, 'Emergência');
-    }
-}
-
-function validarHoras(idOS) {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista'));
-    let os = osLista.find(o => o.id === idOS);
-    if(os) {
-        os.horasValidadas = true;
-        localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
-        alert(`Horas da OS #${idOS} validadas com sucesso para efeitos de folha de pagamento.`);
-        atualizarTudo();
-    }
-}
-
-function gerarRelatorioOperacional() {
-    window.print(); 
-}
-
-// NOVO: Função para o botão de Compartilhar
-function compartilharRelatorio() {
-    alert("✅ Link do relatório copiado para a área de transferência! Pode agora enviar via e-mail ou chat corporativo.");
-}
-
-function atualizarTudo() {
-    renderizarDashboardSupervisor();
-    renderizarDistribuicao();
-    renderizarStatusTempoReal(); // Atualiza a nova lista
-    renderizarValidacaoHoras();
-}
-
-window.onload = () => {
-    inicializarDadosSupervisor();
-    atualizarTudo();
-};
+document.getElementById('btn-exportar').onclick = () => window.print();

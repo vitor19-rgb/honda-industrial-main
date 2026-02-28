@@ -1,183 +1,196 @@
 // js/gestor.js
 
-// 1. INICIALIZAÇÃO DE DADOS EXECUTIVOS
-function inicializarDadosGestor() {
-    let requisicoes = localStorage.getItem('honda_requisicoes_gestor');
-    if (!requisicoes) {
-        // Criar dados simulados mais ricos para o módulo de aprovações
-        const reqIniciais = [
-            { id: "REQ-001", tipo: "Investimento", descricao: "Compra de novo Robô de Solda A3", valor: 450000, status: "Pendente", detalhe: "Disponibilidade atual do ativo antigo caiu para 82%." },
-            { id: "REQ-002", tipo: "Investimento", descricao: "Substituição do Motor da Esteira Principal", valor: 85000, status: "Pendente", detalhe: "Disponibilidade atual: 88%. Risco de parada total." },
-            { id: "REQ-003", tipo: "Parada Programada", descricao: "Manutenção Geral Anual - Linha B", valor: 25000, status: "Pendente", detalhe: "Duração estimada: 2 dias. Impacto na produção mitigado." }
-        ];
-        localStorage.setItem('honda_requisicoes_gestor', JSON.stringify(reqIniciais));
+// 1. Importar ferramentas da Nuvem
+import { db } from './firebase-config.js';
+import { 
+    collection, 
+    onSnapshot, 
+    doc, 
+    updateDoc,
+    addDoc,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// 2. Personalizar Cabeçalho com o nome do utilizador logado
+const nomeUtilizador = localStorage.getItem('honda_user_name') || 'Diretoria';
+document.getElementById('nome-gestor').innerText = `Gestor Logado: ${nomeUtilizador}`;
+
+// Variáveis de Dados
+let osGlobais = [];
+let capexGlobais = [];
+
+// Constantes Financeiras Fictícias para a Apresentação
+const ORCAMENTO_TOTAL = 50000;
+const CUSTO_HORA_TECNICO = 65; // R$ 65 por hora de trabalho
+const CUSTO_PECA_MEDIA = 120; // R$ 120 por peça usada (Média)
+
+// 3. OUVINTES EM TEMPO REAL (Sincronizados)
+
+// A. Escutar Ordens de Serviço (Para Custos e Produtividade)
+// CORREÇÃO: Usar a mesma ordenação cronológica das outras telas
+const qOS = query(collection(db, "honda_os_lista"), orderBy("dataCriacao", "desc"));
+
+onSnapshot(qOS, (snapshot) => {
+    osGlobais = [];
+    snapshot.forEach((doc) => {
+        osGlobais.push({ firestoreId: doc.id, ...doc.data() });
+    });
+    calcularFinancas();
+    renderizarProdutividade();
+});
+
+// B. Escutar Pedidos de CAPEX (Investimentos)
+onSnapshot(collection(db, "honda_capex"), (snapshot) => {
+    capexGlobais = [];
+    snapshot.forEach((doc) => {
+        capexGlobais.push({ firestoreId: doc.id, ...doc.data() });
+    });
+
+    if(capexGlobais.length === 0) {
+        gerarCapexDeTeste(); 
+    } else {
+        renderizarCapex();
     }
-}
+});
 
-// 2. CÁLCULOS DE KPIs E ORÇAMENTO
-function renderizarKPIs() {
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    
-    // KPI: Backlog (OS Acumuladas / Não Finalizadas)
-    let backlog = osLista.filter(os => os.status !== 'Finalizada').length;
-    document.getElementById('kpi-backlog').innerText = backlog;
+// 4. LÓGICA FINANCEIRA INTEGRADA
 
-    // KPI: Custos e Orçamento
+function calcularFinancas() {
     let custoTotal = 0;
-    let osCorretivas = 0;
-    let osPreventivas = 0;
 
-    osLista.forEach(os => {
-        let horas = (os.tempoGasto || 0) / 60; 
-        custoTotal += horas * 80; // R$ 80 por hora
-        if(os.pecasUsadas) {
-            os.pecasUsadas.forEach(p => { custoTotal += p.qtd * 150; }); // R$ 150 por peça
-        }
+    osGlobais.forEach(os => {
+        // INTEGRAÇÃO: O custo só entra no balanço quando a OS está 'Finalizada' 
+        // (passou pela Engenharia se era Emergência) E foi validada pelo Supervisor.
+        if(os.status === 'Finalizada' && os.horasValidadas) {
+            
+            // Calcula Custo da Mão de Obra
+            let horas = (os.tempoGasto || 0) / 60;
+            custoTotal += horas * CUSTO_HORA_TECNICO;
 
-        if(os.prioridade === 'Emergência' || os.prioridade === 'Alta') {
-            osCorretivas++;
-        } else {
-            osPreventivas++;
+            // Calcula Custo das Peças Usadas
+            if(os.pecasUsadas && os.pecasUsadas.length > 0) {
+                os.pecasUsadas.forEach(peca => {
+                    custoTotal += parseInt(peca.qtd) * CUSTO_PECA_MEDIA;
+                });
+            }
         }
     });
 
-    let orcamentoTotal = 100000; // Orçamento mensal (R$ 100.000)
-    let saldoDisponivel = orcamentoTotal - custoTotal;
-    let percentualGasto = ((custoTotal / orcamentoTotal) * 100).toFixed(1);
+    let saldo = ORCAMENTO_TOTAL - custoTotal;
+    let percentualUso = (custoTotal / ORCAMENTO_TOTAL) * 100;
 
-    document.getElementById('kpi-custos').innerText = `R$ ${custoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-orcamento').innerText = `R$ ${saldoDisponivel.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+    const formataDinheiro = (valor) => valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    document.getElementById('kpi-custo-atual').innerText = formataDinheiro(custoTotal);
+    document.getElementById('kpi-saldo').innerText = formataDinheiro(saldo);
     
-    let barraOrcamento = document.getElementById('barra-orcamento');
-    barraOrcamento.style.width = `${Math.min(percentualGasto, 100)}%`;
-    if(percentualGasto > 80) barraOrcamento.classList.replace('bg-green-500', 'bg-red-500');
+    let barra = document.getElementById('barra-orcamento');
+    barra.style.width = `${Math.min(percentualUso, 100)}%`;
+    document.getElementById('percentual-orcamento').innerText = `${percentualUso.toFixed(1)}%`;
 
-    desenharGraficoManutencao(osPreventivas, osCorretivas);
-    desenharGraficoFalhas();
+    if(percentualUso > 80) {
+        barra.classList.remove('bg-honda-red');
+        barra.classList.add('bg-black'); 
+    }
 }
 
-// 3. DESEMPENHO DA EQUIPA (NOVO)
-function renderizarDesempenhoEquipe() {
-    let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
-    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    const tbody = document.getElementById('tabela-desempenho');
+function renderizarProdutividade() {
+    const tbody = document.getElementById('tabela-produtividade');
     tbody.innerHTML = '';
 
-    equipe.forEach(tec => {
-        // Filtrar OS concluídas por este técnico
-        let osConcluidas = osLista.filter(os => os.tecnicoId === tec.id && os.status === 'Finalizada');
-        let totalOS = osConcluidas.length;
-        
-        let tempoTotal = 0;
-        osConcluidas.forEach(os => tempoTotal += os.tempoGasto || 0);
-        let tempoMedio = totalOS > 0 ? Math.round(tempoTotal / totalOS) : 0;
+    let produtividade = {};
+
+    osGlobais.forEach(os => {
+        // Só conta para a produtividade se o ciclo de trabalho estiver validado
+        if(os.status === 'Finalizada' && os.horasValidadas && os.tecnicoNome) {
+            if(!produtividade[os.tecnicoNome]) {
+                produtividade[os.tecnicoNome] = { osFechadas: 0, minutosTotais: 0 };
+            }
+            produtividade[os.tecnicoNome].osFechadas += 1;
+            produtividade[os.tecnicoNome].minutosTotais += parseInt(os.tempoGasto || 0);
+        }
+    });
+
+    let ranking = Object.keys(produtividade).map(nome => {
+        return { nome: nome, ...produtividade[nome] };
+    }).sort((a, b) => b.osFechadas - a.osFechadas);
+
+    if(ranking.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-sm text-gray-500">Nenhuma produtividade validada na nuvem.</td></tr>';
+        return;
+    }
+
+    ranking.forEach((tec, index) => {
+        let horas = Math.floor(tec.minutosTotais / 60);
+        let min = tec.minutosTotais % 60;
+        let icone = index === 0 ? '🏆' : (index === 1 ? '🥈' : '🏅');
 
         tbody.innerHTML += `
             <tr class="border-b hover:bg-gray-50 transition">
-                <td class="p-3 text-sm font-bold text-gray-800 flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-honda-red text-white flex items-center justify-center text-xs">${tec.nome.charAt(0)}</div>
-                    ${tec.nome}
-                </td>
-                <td class="p-3 text-sm text-center font-bold text-green-600">${totalOS}</td>
-                <td class="p-3 text-sm text-center">${tempoMedio} min</td>
+                <td class="p-3 text-sm font-bold text-gray-800 flex items-center gap-2">${icone} ${tec.nome}</td>
+                <td class="p-3 text-sm text-center font-black text-blue-600">${tec.osFechadas}</td>
+                <td class="p-3 text-sm text-center text-gray-600">${horas}h ${min}m</td>
             </tr>
         `;
     });
-
-    if(equipe.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500 text-sm">Nenhum dado de equipa encontrado.</td></tr>';
-    }
 }
 
-// 4. MÓDULO DE APROVAÇÕES ESTRATÉGICAS
-function renderizarAprovacoes() {
-    let requisicoes = JSON.parse(localStorage.getItem('honda_requisicoes_gestor')) || [];
-    const containerInvest = document.getElementById('lista-investimentos');
-    const containerParadas = document.getElementById('lista-paradas');
-    
-    containerInvest.innerHTML = '';
-    containerParadas.innerHTML = '';
+// 5. GESTÃO DE INVESTIMENTOS (CAPEX)
 
-    let pendentes = requisicoes.filter(r => r.status === 'Pendente');
+function renderizarCapex() {
+    const lista = document.getElementById('lista-capex');
+    lista.innerHTML = '';
 
-    pendentes.forEach(req => {
-        let valorHtml = `R$ ${req.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-        
-        let cardHTML = `
-            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-3">
-                <h3 class="font-bold text-gray-800 text-sm mb-1">${req.descricao}</h3>
-                <p class="text-xs text-gray-500 mb-2 italic">${req.detalhe}</p>
-                <p class="text-sm font-black text-honda-red mb-3">Custo Estimado: ${valorHtml}</p>
-                <div class="flex gap-2">
-                    <button onclick="julgarRequisicao('${req.id}', 'Aprovada')" class="flex-1 bg-green-600 text-white py-1.5 rounded text-xs font-bold hover:bg-green-700 transition">Aprovar</button>
-                    <button onclick="julgarRequisicao('${req.id}', 'Rejeitada')" class="flex-1 bg-gray-300 text-gray-800 py-1.5 rounded text-xs font-bold hover:bg-gray-400 transition">Rejeitar</button>
+    let pendentes = capexGlobais.filter(c => c.status === 'Pendente');
+
+    if(pendentes.length === 0) {
+        lista.innerHTML = '<p class="text-sm text-green-600 font-bold bg-green-50 p-3 rounded text-center">Nenhum pedido de investimento pendente.</p>';
+        return;
+    }
+
+    pendentes.forEach(capex => {
+        lista.innerHTML += `
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-black text-gray-800 text-sm">${capex.titulo}</span>
+                    <span class="bg-yellow-200 text-yellow-800 text-[10px] uppercase font-bold px-2 py-1 rounded">Pendente</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">De: ${capex.solicitante}</p>
+                <p class="text-sm text-gray-700 italic border-l-2 border-yellow-400 pl-2 mb-3 p-1 bg-white rounded">${capex.justificativa}</p>
+                
+                <div class="flex justify-between items-center mt-3 pt-3 border-t border-yellow-200">
+                    <span class="font-black text-honda-red text-lg">${capex.valor}</span>
+                    <div class="flex gap-2 no-print">
+                        <button class="btn-capex text-xs font-bold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded transition" data-id="${capex.firestoreId}" data-acao="Aprovado">✅ Aprovar</button>
+                        <button class="btn-capex text-xs font-bold text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1.5 rounded transition" data-id="${capex.firestoreId}" data-acao="Rejeitado">❌ Negar</button>
+                    </div>
                 </div>
             </div>
         `;
-
-        if (req.tipo === 'Investimento') {
-            containerInvest.innerHTML += cardHTML;
-        } else {
-            containerParadas.innerHTML += cardHTML;
-        }
     });
 
-    if(containerInvest.innerHTML === '') containerInvest.innerHTML = '<p class="text-xs text-gray-400">Nenhum investimento pendente.</p>';
-    if(containerParadas.innerHTML === '') containerParadas.innerHTML = '<p class="text-xs text-gray-400">Nenhuma parada programada pendente.</p>';
-}
-
-function julgarRequisicao(id, novoStatus) {
-    let requisicoes = JSON.parse(localStorage.getItem('honda_requisicoes_gestor'));
-    let req = requisicoes.find(r => r.id === id);
-    if(req) {
-        req.status = novoStatus;
-        localStorage.setItem('honda_requisicoes_gestor', JSON.stringify(requisicoes));
-        alert(`Solicitação ${novoStatus} com sucesso! O sistema foi atualizado.`);
-        renderizarAprovacoes();
-    }
-}
-
-// 5. RELATÓRIO GERENCIAL
-function emitirRelatorioGerencial() {
-    alert("Iniciando compilação de dados...\nO seu Relatório Executivo está a ser gerado em PDF.");
-    window.print(); // Abre a janela de impressão nativa do navegador
-}
-
-// GRÁFICOS (Mantidos do anterior)
-let chartManutencao, chartFalhas;
-function desenharGraficoManutencao(prev, corr) {
-    const ctx = document.getElementById('chartManutencao').getContext('2d');
-    if(chartManutencao) chartManutencao.destroy();
-    if(prev === 0 && corr === 0) { prev = 60; corr = 40; } // Dados de exemplo se vazio
-
-    chartManutencao = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: ['Preventiva', 'Corretiva'], datasets: [{ data: [prev, corr], backgroundColor: ['#10B981', '#EF4444'], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+    document.querySelectorAll('.btn-capex').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            let id = e.target.dataset.id;
+            let acao = e.target.dataset.acao;
+            try {
+                await updateDoc(doc(db, "honda_capex", id), { status: acao });
+                alert(`Investimento ${acao} com sucesso!`);
+            } catch (err) { alert("Erro ao processar CAPEX: " + err); }
+        });
     });
 }
 
-function desenharGraficoFalhas() {
-    let equipamentos = JSON.parse(localStorage.getItem('honda_equipamentos')) || [];
-    const ctx = document.getElementById('chartFalhas').getContext('2d');
-    if(chartFalhas) chartFalhas.destroy();
-
-    equipamentos.sort((a, b) => b.falhas - a.falhas);
-    let topMaquinas = equipamentos.slice(0, 5);
-    let labels = topMaquinas.map(m => m.nome.split(' ')[0]);
-    let dados = topMaquinas.map(m => m.falhas);
-
-    chartFalhas = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: labels, datasets: [{ label: 'Falhas', data: dados, backgroundColor: '#333333', borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false }
+// Funções de Suporte
+async function gerarCapexDeTeste() {
+    await addDoc(collection(db, "honda_capex"), {
+        titulo: "Novo Robô de Solda A2",
+        justificativa: "Substituição por obsolescência técnica.",
+        valor: "R$ 185.000,00",
+        solicitante: "Engenharia",
+        status: "Pendente"
     });
 }
 
-// Inicializa a página
-window.onload = () => {
-    inicializarDadosGestor();
-    renderizarKPIs();
-    renderizarDesempenhoEquipe();
-    renderizarAprovacoes();
-};
+document.getElementById('btn-exportar').addEventListener('click', () => window.print());

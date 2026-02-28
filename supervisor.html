@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supervisor de Manutenção - Honda</title>
+    <title>Supervisão - Honda Industrial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/global.css">
     <style>
         @media print {
-            header, .no-print { display: none !important; }
+            header, .no-print, button, select { display: none !important; }
             body { background: white; }
             .print-full { width: 100% !important; max-width: 100% !important; }
         }
@@ -19,107 +19,73 @@
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
 
-    <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-20 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-honda-red flex items-center justify-center font-bold shadow-sm">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            </div>
+    <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-20 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4 w-full md:w-auto">
+            <div id="iniciais-supervisor" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold shadow-sm shrink-0">--</div>
             <div>
-                <h1 class="font-bold text-lg leading-tight">Painel de Supervisão</h1>
-                <p class="text-xs text-gray-300">Gestão de Equipa e Distribuição</p>
+                <h1 class="font-bold text-lg leading-tight">Painel de Supervisão (Nuvem)</h1>
+                <p id="nome-supervisor" class="text-xs text-blue-300 font-bold">Carregando...</p>
             </div>
         </div>
-        <a href="index.html" class="text-sm font-bold text-gray-300 hover:text-white transition no-print">Voltar à Tela Inicial</a>
+        
+        <div class="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
+            <button id="btn-exportar" class="no-print bg-white text-honda-dark px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition flex items-center shadow-sm">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Relatório de Turno
+            </button>
+            <a href="perfis.html" class="no-print text-sm font-bold text-gray-300 hover:text-white transition whitespace-nowrap">Voltar aos Perfis</a>
+        </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-4 lg:p-8 mt-4 print-full">
         
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-honda-dark flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-gray-500 font-bold uppercase">SLA: No Prazo</p>
-                    <p class="text-2xl font-black text-green-600 mt-1">Status OK</p>
-                </div>
-                <div class="text-3xl">✅</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-honda-red">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Emergências Ativas</p>
+                <h3 id="kpi-criticas" class="text-3xl font-black text-honda-red mt-1">0</h3>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-gray-500 font-bold uppercase">SLA: Atrasadas</p>
-                    <p id="kpi-atrasadas" class="text-2xl font-black text-orange-600 mt-1">0</p>
-                </div>
-                <div class="text-3xl">⚠️</div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Equipe em Campo</p>
+                <h3 id="kpi-andamento" class="text-3xl font-black text-blue-600 mt-1">0</h3>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-600 flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-gray-500 font-bold uppercase">Emergências Ativas</p>
-                    <p id="kpi-emergencias" class="text-2xl font-black text-red-600 mt-1 animate-pulse">0</p>
-                </div>
-                <div class="text-3xl">🚨</div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Aguardando Validação</p>
+                <h3 id="kpi-validacao" class="text-3xl font-black text-green-600 mt-1">0</h3>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div class="lg:col-span-1">
-                <div class="bg-gray-100 p-4 rounded-2xl border border-gray-200 h-full">
-                    <h2 class="font-bold text-gray-800 text-lg mb-4 flex items-center">
-                        <span class="mr-2">📥</span> Aguardando Distribuição
-                    </h2>
-                    <p class="text-xs text-gray-500 mb-4">Atribua as OS pendentes aos técnicos ou repriorize.</p>
-                    
-                    <div id="lista-distribuicao" class="space-y-3 max-h-[600px] overflow-y-auto pr-1"></div>
-                </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
+            <h2 class="font-bold text-gray-800 text-base flex items-center mb-4 border-b pb-2">
+                <span class="text-xl mr-2">📊</span> Carga de Trabalho da Equipe (OS Ativas)
+            </h2>
+            <div id="painel-carga-equipa" class="space-y-4">
+                <p class="text-xs text-gray-500 italic">Processando dados...</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+            <div class="bg-gray-50 rounded-xl border border-gray-200 p-3 min-h-[450px]">
+                <h3 class="text-xs font-black text-gray-500 uppercase mb-3 flex justify-between">Pendentes <span id="count-pendente" class="bg-gray-200 px-2 rounded-full">0</span></h3>
+                <div id="col-pendente" class="space-y-3"></div>
             </div>
 
-            <div class="lg:col-span-1 flex flex-col gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <h2 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2 flex items-center">
-                        <span class="mr-2">👥</span> Carga de Trabalho da Equipa
-                    </h2>
-                    <div id="lista-carga-equipe" class="mt-4"></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-blue-200 flex-1">
-                    <h2 class="font-bold text-gray-800 text-lg mb-2 flex items-center text-blue-800">
-                        <span class="mr-2">📡</span> Status em Tempo Real
-                    </h2>
-                    <p class="text-xs text-gray-500 mb-4">OS atualmente em execução na fábrica.</p>
-                    <div id="lista-tempo-real" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
-                </div>
+            <div class="bg-blue-50 rounded-xl border border-blue-100 p-3 min-h-[450px]">
+                <h3 class="text-xs font-black text-blue-800 uppercase mb-3 flex justify-between">Em Andamento <span id="count-andamento" class="bg-blue-200 px-2 rounded-full">0</span></h3>
+                <div id="col-andamento" class="space-y-3"></div>
             </div>
 
-            <div class="lg:col-span-1 space-y-6">
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <h2 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2 flex items-center">
-                        <span class="mr-2">⏱️</span> Validação de Horas
-                    </h2>
-                    <p class="text-xs text-gray-500 mb-4">Aprove os apontamentos de horas das OS finalizadas.</p>
-                    
-                    <div id="lista-validacao" class="max-h-64 overflow-y-auto pr-1"></div>
-                </div>
-
-                <div class="bg-honda-dark p-6 rounded-2xl shadow-sm text-white">
-                    <h2 class="font-bold text-lg mb-2">Relatórios Operacionais</h2>
-                    <p class="text-xs text-gray-400 mb-4">Gere um consolidado com o estado atual da fábrica e partilhe.</p>
-                    
-                    <div class="flex flex-col gap-2">
-                        <button onclick="gerarRelatorioOperacional()" class="no-print w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg flex items-center justify-center transition">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Exportar PDF
-                        </button>
-                        <button onclick="compartilharRelatorio()" class="no-print w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg flex items-center justify-center transition">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                            Compartilhar Link
-                        </button>
-                    </div>
-                </div>
-
+            <div class="bg-orange-50 rounded-xl border border-orange-100 p-3 min-h-[450px]">
+                <h3 class="text-xs font-black text-orange-800 uppercase mb-3 flex justify-between">Ag. Peça <span id="count-peca" class="bg-orange-200 px-2 rounded-full">0</span></h3>
+                <div id="col-peca" class="space-y-3"></div>
             </div>
-            
+
+            <div class="bg-green-50 rounded-xl border border-green-100 p-3 min-h-[450px]">
+                <h3 class="text-xs font-black text-green-800 uppercase mb-3 flex justify-between">Finalizadas / Validar <span id="count-finalizada" class="bg-green-200 px-2 rounded-full">0</span></h3>
+                <div id="col-finalizada" class="space-y-3"></div>
+            </div>
         </div>
     </main>
 
-    <script src="js/supervisor.js"></script>
+    <script type="module" src="js/supervisor.js"></script>
 </body>
 </html>
