@@ -1,0 +1,256 @@
+/* --- STILI GENERALI --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    overflow-x: hidden;
+}
+
+/* =======================================================
+   VERSIONE 1: MOBILE (iPhone 17) - Fino a 767px
+   ======================================================= */
+/* --- Intestazione Mobile --- */
+.cabecalho {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #ffffff;
+}
+
+.logo-container {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Logo e elementi centrati */
+}
+
+.logo {
+    height: 25px;
+}
+
+.menu {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 2px solid #cc0000;
+    padding: 12px 0;
+    background-color: #fcfcfc;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.menu .btn-login {
+    color: #cc0000; /* Testo rosso senza sfondo */
+    background-color: transparent;
+}
+
+/* --- Hero Mobile --- */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 55vh; 
+    min-height: 400px;
+    display: flex;
+    align-items: flex-end;
+    padding: 30px 20px;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    object-position: 92% center; /* Focus sul motociclista sul cellulare */
+    z-index: -1;
+}
+
+.hero-conteudo {
+    position: relative;
+    color: #ffffff;
+    z-index: 1;
+    width: 100%;
+}
+
+.hero-conteudo h1 {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 10px;
+}
+
+.honda-texto { height: 12px; margin-left: 5px; margin-bottom: 2px;}
+.honda-asa { height: 16px; margin-left: 5px; }
+
+.btn-ver-mais {
+    display: inline-block;
+    background-color: #cc0000;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* --- Sezione Carte Mobile --- */
+.perfis-secao {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.perfis-secao h2 { font-size: 26px; font-weight: 600; margin-bottom: 5px; }
+.subtitulo { font-size: 14px; color: #acacac; margin-bottom: 30px; }
+
+.grid-cartoes {
+    display: flex;
+    flex-direction: column; /* 1 carta per riga */
+    gap: 15px;
+    width: 100%;
+}
+
+.cartao {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: left;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cartao-topo { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.icone-circulo {
+    width: 40px; height: 40px; border: 1px solid #b9b9b9; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+}
+.icone-circulo img { width: 20px; height: 20px; }
+.cartao h3 { font-size: 18px; font-weight: 400; }
+.cartao p { font-size: 13px; color: #999999; line-height: 1.5; }
+
+.btn-entrar {
+    display: block; width: 100%; max-width: 350px; background-color: #cc0000;
+    color: #ffffff; text-decoration: none; padding: 15px; border-radius: 5px;
+    font-weight: 400; font-size: 18px; margin-top: 30px;
+}
+
+/* --- Piè di pagina Mobile --- */
+.rodape {
+    background-color: #0d0d0d; padding: 25px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.logo-branca { height: 20px; }
+.rodape p { color: #ffffff; font-size: 12px; }
+
+
+/* =======================================================
+   VERSIONE 2: TABLET (Schermi >= 768px e < 1024px)
+   ======================================================= */
+@media (min-width: 768px) {
+    .cabecalho {
+        position: relative; 
+        flex-direction: row;
+        justify-content: flex-end; /* Spinge il menu a destra */
+        align-items: center;
+        height: 70px; 
+        padding: 0 40px;
+        border-bottom: 1px solid #cc0000; 
+    }
+
+    .logo-container {
+        /* Logo centrato perfettamente al 42% dell'altezza */
+        position: absolute;
+        left: 50%;
+        top: 42%; 
+        transform: translate(-50%, -50%);
+        height: auto;
+    }
+    .logo { height: 30px; }
+    
+    .menu {
+        width: auto; border: none; background-color: transparent; padding: 0; gap: 20px;
+    }
+    .menu .btn-login {
+        background-color: #cc0000; color: #ffffff; padding: 8px 25px; border-radius: 4px;
+    }
+
+    .hero { height: 500px; padding: 50px 40px; align-items: center; }
+    .hero-bg { object-position: center center; }
+    .hero-conteudo h1 { font-size: 36px; margin-bottom: 15px; }
+
+    /* Griglia Tablet: 2 Carte per riga */
+    .grid-cartoes {
+        flex-direction: row; flex-wrap: wrap; justify-content: center;
+        max-width: 800px; gap: 20px;
+    }
+    .cartao { width: calc(50% - 20px); }
+    
+    .rodape { flex-direction: row; justify-content: space-between; padding: 25px 40px; }
+}
+
+/* =======================================================
+   VERSIONE 3: NOTEBOOK / SURFACE PRO 8 (Schermi >= 1024px e < 1360px)
+   ======================================================= */
+@media (min-width: 1024px) {
+    .cabecalho { padding: 0 60px; height: 80px; }
+    .logo { height: 35px; }
+    .menu { gap: 30px; }
+    
+    .hero { height: 650px; padding: 60px 80px; }
+    .hero-conteudo h1 { font-size: 46px; margin-bottom: 25px; }
+    .honda-texto { height: 22px; } .honda-asa { height: 30px; }
+    .btn-ver-mais { font-size: 16px; padding: 12px 30px; }
+
+    .perfis-secao h2 { font-size: 32px; }
+    .subtitulo { font-size: 16px; margin-bottom: 40px; }
+
+    /* Griglia Surface Pro 8: 3 Carte in alto, 2 in basso */
+    .grid-cartoes { max-width: 950px; gap: 20px; }
+    .cartao { width: calc(33.333% - 20px); }
+
+    .btn-entrar { max-width: 300px; margin-top: 40px; }
+    .rodape { padding: 25px 60px; }
+}
+
+/* =======================================================
+   VERSIONE 4: DESKTOP LARGO / FRAME 2 (Schermi >= 1360px)
+   ======================================================= */
+@media (min-width: 1360px) {
+    .hero { height: 817px; } /* Altezza gigante originale */
+    .hero-conteudo h1 { font-size: 54px; }
+    .honda-texto { height: 26px; } .honda-asa { height: 36px; }
+    .btn-ver-mais { font-size: 18px; padding: 15px 35px; }
+
+    .perfis-secao h2 { font-size: 36px; }
+    .subtitulo { font-size: 18px; margin-bottom: 50px; }
+
+    /* Griglia Desktop: Tutte e 5 le Carte allineate in una sola riga */
+    .grid-cartoes {
+        max-width: 1400px; /* Allarghiamo il contenitore */
+        flex-wrap: nowrap; /* Impedisce alle carte di andare a capo */
+        gap: 15px;
+    }
+    
+    .cartao {
+        width: 100%; /* Si allungano in modo uguale per riempire lo spazio */
+    }
+    
+    .btn-entrar { margin-top: 50px; }
+    .rodape { padding: 30px 80px; }
+}

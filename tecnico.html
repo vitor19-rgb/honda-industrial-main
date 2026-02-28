@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Técnico - Honda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }</script>
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body class="bg-gray-100 pb-24 font-sans text-honda-dark">
+
+    <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-10">
+        <div class="flex justify-between items-center max-w-3xl mx-auto">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-honda-red flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">RM</div>
+                <div class="ml-3">
+                    <h1 class="font-bold text-sm leading-tight">Roberto Mendes</h1>
+                    <p class="text-xs text-gray-300">Técnico Eletromecânico</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="perfis.html" class="text-sm font-bold text-gray-300 hover:text-white transition">Voltar</a>
+                <button onclick="fazerLogout()" class="p-2 text-gray-300 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-4 mt-2">
+        <button onclick="criarNovaOS()" class="touch-target w-full bg-red-600 hover:bg-red-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl flex items-center justify-center mb-6 transform transition active:scale-95 border-b-4 border-red-800">
+            <svg class="w-7 h-7 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            NOVA OS (EMERGENCIAL)
+        </button>
+
+        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-sm mb-4 px-1">Minhas Ordens de Serviço</h2>
+
+        <div id="lista-os-container"></div>
+        
+    </main>
+
+    <script src="js/tecnico.js"></script>
+</body>
+</html>

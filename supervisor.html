@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor de Manutenção - Honda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }
+    </script>
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        /* Ajuste visual para impressão do PDF */
+        @media print {
+            header, .no-print { display: none !important; }
+            body { background: white; }
+            .print-full { width: 100% !important; max-width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-20 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-honda-red flex items-center justify-center font-bold shadow-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Painel de Supervisão</h1>
+                <p class="text-xs text-gray-300">Gestão de Equipa e Distribuição</p>
+            </div>
+        </div>
+        <a href="index.html" class="text-sm font-bold text-gray-300 hover:text-white transition">Voltar à Tela Inicial</a>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 lg:p-8 mt-4 print-full">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-honda-dark flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">SLA: No Prazo</p>
+                    <p class="text-2xl font-black text-green-600 mt-1">Status OK</p>
+                </div>
+                <div class="text-3xl">✅</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">SLA: Atrasadas</p>
+                    <p id="kpi-atrasadas" class="text-2xl font-black text-orange-600 mt-1">0</p>
+                </div>
+                <div class="text-3xl">⚠️</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-600 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">Emergências Ativas</p>
+                    <p id="kpi-emergencias" class="text-2xl font-black text-red-600 mt-1 animate-pulse">0</p>
+                </div>
+                <div class="text-3xl">🚨</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1">
+                <div class="bg-gray-100 p-4 rounded-2xl border border-gray-200 h-full">
+                    <h2 class="font-bold text-gray-800 text-lg mb-4 flex items-center">
+                        <span class="mr-2">📥</span> Aguardando Distribuição
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-4">Atribua as OS pendentes aos técnicos ou repriorize.</p>
+                    
+                    <div id="lista-distribuicao" class="space-y-3 max-h-[600px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 h-full">
+                    <h2 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2 flex items-center">
+                        <span class="mr-2">👥</span> Carga de Trabalho da Equipa
+                    </h2>
+                    
+                    <div id="lista-carga-equipe" class="mt-4"></div>
+                    
+                    <div class="mt-8 bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm text-blue-800">
+                        <strong>Dica do Sistema:</strong> Mantenha a carga de OS equilibrada (barra verde) para evitar quebra de SLAs e fadiga da equipa técnica.
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 space-y-6">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h2 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2 flex items-center">
+                        <span class="mr-2">⏱️</span> Validação de Horas
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-4">Aprove os apontamentos de horas das OS finalizadas.</p>
+                    
+                    <div id="lista-validacao" class="max-h-64 overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="bg-honda-dark p-6 rounded-2xl shadow-sm text-white">
+                    <h2 class="font-bold text-lg mb-2">Relatórios Operacionais</h2>
+                    <p class="text-xs text-gray-400 mb-4">Gere um consolidado em PDF com o estado atual da fábrica e produtividade da equipa.</p>
+                    <button onclick="gerarRelatorioOperacional()" class="no-print w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg flex items-center justify-center transition">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Exportar Relatório em PDF
+                    </button>
+                </div>
+
+            </div>
+            
+        </div>
+    </main>
+
+    <script src="js/supervisor.js"></script>
+</body>
+</html>
