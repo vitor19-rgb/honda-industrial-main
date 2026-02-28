@@ -33,8 +33,10 @@ function renderizarOS() {
         }
     });
 
-    // Mostra apenas as OS associadas a este técnico (ID: T1) ou Pendentes que ele mesmo abriu
     let osDoTecnico = osLista.filter(os => os.tecnicoId === "T1" || os.tecnicoId === null);
+
+    // Atualiza o Sininho de Notificações (NOVO)
+    atualizarSininho(osDoTecnico);
 
     osDoTecnico.forEach(os => {
         let badgeClass = "bg-yellow-100 text-yellow-800";
@@ -81,7 +83,7 @@ function renderizarOS() {
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Evidência</label>
-                            <label class="cursor-pointer flex items-center justify-center w-full border border-gray-300 rounded-xl bg-white text-gray-500 py-3 hover:bg-gray-50">
+                            <label class="cursor-pointer flex items-center justify-center w-full border border-gray-300 rounded-xl bg-white text-gray-500 py-3 hover:bg-gray-50 transition">
                                 📷 Tirar Foto
                                 <input type="file" accept="image/*" capture="environment" class="hidden">
                             </label>
@@ -113,7 +115,43 @@ function renderizarOS() {
     }
 }
 
-// 3. FUNÇÕES DE CRIAÇÃO E HISTÓRICO (REQUISITOS DO PDF)
+// 3. FUNÇÕES DE NOTIFICAÇÃO (NOVO - BUG RESOLVIDO)
+function atualizarSininho(osDoTecnico) {
+    let osAtivas = osDoTecnico.filter(os => os.status !== 'Finalizada');
+    let badge = document.getElementById('badge-notificacao');
+
+    if(osAtivas.length > 0) {
+        badge.innerText = osAtivas.length;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+function mostrarToastNotificacao() {
+    const toast = document.getElementById('toast-notificacao');
+    const badge = document.getElementById('badge-notificacao');
+    const texto = document.getElementById('texto-toast');
+
+    if(badge.innerText !== "0" && !badge.classList.contains('hidden')) {
+        texto.innerText = `Você possui ${badge.innerText} Ordem(ns) de Serviço na sua fila. Por favor, verifique a sua lista de tarefas.`;
+        toast.classList.remove('translate-x-full', 'opacity-0');
+        
+        // Fecha automaticamente após 5 segundos
+        setTimeout(() => { fecharToast(); }, 5000);
+    } else {
+        texto.innerText = `Você não possui novas notificações. O seu painel está limpo!`;
+        toast.classList.remove('translate-x-full', 'opacity-0');
+        setTimeout(() => { fecharToast(); }, 4000);
+    }
+}
+
+function fecharToast() {
+    const toast = document.getElementById('toast-notificacao');
+    toast.classList.add('translate-x-full', 'opacity-0');
+}
+
+// 4. FUNÇÕES DE CRIAÇÃO E HISTÓRICO
 function abrirModalNovaOS() {
     const select = document.getElementById('nova-os-maquina');
     const equipamentos = JSON.parse(localStorage.getItem('honda_equipamentos')) || [];
@@ -139,16 +177,9 @@ function criarNovaOSForm(event) {
     const novoId = Math.floor(1000 + Math.random() * 9000).toString();
 
     osLista.unshift({
-        id: novoId,
-        maquina: maquina,
-        descricao: descricao,
-        status: "Pendente",
-        prioridade: "Emergência", // OS aberta pelo técnico é sempre emergencial
-        diagnostico: "",
-        tecnicoId: "T1", // Associar ao técnico atual
-        tempoGasto: 0,
-        pecasUsadas: [],
-        horasValidadas: false
+        id: novoId, maquina: maquina, descricao: descricao, status: "Pendente",
+        prioridade: "Emergência", diagnostico: "", tecnicoId: "T1",
+        tempoGasto: 0, pecasUsadas: [], horasValidadas: false
     });
 
     localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
@@ -164,11 +195,10 @@ function abrirModalHistorico(maquinaNome) {
     conteudo.innerHTML = '';
 
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
-    // Busca OS finalizadas daquela máquina
     let historico = osLista.filter(os => os.maquina === maquinaNome && os.status === 'Finalizada');
 
     if(historico.length === 0) {
-        conteudo.innerHTML = '<p class="text-sm text-gray-500 italic">Nenhuma manutenção prévia registrada para este equipamento.</p>';
+        conteudo.innerHTML = '<p class="text-sm text-gray-500 italic">Nenhuma manutenção prévia registrada.</p>';
     } else {
         historico.forEach(os => {
             conteudo.innerHTML += `
@@ -182,7 +212,6 @@ function abrirModalHistorico(maquinaNome) {
             `;
         });
     }
-    
     document.getElementById('modal-historico').classList.remove('hidden');
 }
 
@@ -190,10 +219,8 @@ function fecharModalHistorico() {
     document.getElementById('modal-historico').classList.add('hidden');
 }
 
-// 4. FUNÇÕES DE ATUALIZAÇÃO E CONSUMO
-function toggleOsDetails(detailsId) {
-    document.getElementById(detailsId).classList.toggle('hidden');
-}
+// 5. FUNÇÕES DE ATUALIZAÇÃO E CONSUMO
+function toggleOsDetails(detailsId) { document.getElementById(detailsId).classList.toggle('hidden'); }
 
 function mudarStatusOS(idOS, novoStatus) {
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista'));
@@ -213,8 +240,7 @@ function salvarDiagnostico(idOS) {
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista'));
     let os = osLista.find(o => o.id === idOS);
     if(os) {
-        os.diagnostico = diag;
-        os.tempoGasto = tempo;
+        os.diagnostico = diag; os.tempoGasto = tempo;
         localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
         alert("Relatório e tempo atualizados com sucesso!");
         renderizarOS();
@@ -243,7 +269,7 @@ function consumirPeca(idOS) {
     localStorage.setItem('honda_estoque', JSON.stringify(estoque));
     localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
 
-    alert(`Peça aplicada! Baixa de ${qtd}x ${estoque[pecaIndex].nome} realizada.`);
+    alert(`Baixa de ${qtd}x ${estoque[pecaIndex].nome} realizada.`);
     renderizarOS();
     document.getElementById(`details-${idOS}`).classList.remove('hidden');
 }
@@ -251,4 +277,7 @@ function consumirPeca(idOS) {
 window.onload = () => {
     inicializarDados();
     renderizarOS();
+    
+    // Mostra o Toast de notificação 1 segundo após a tela carregar
+    setTimeout(mostrarToastNotificacao, 1000);
 };

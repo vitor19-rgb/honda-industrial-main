@@ -8,7 +8,7 @@
     <script>tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }</script>
     <link rel="stylesheet" href="css/global.css">
 </head>
-<body class="bg-gray-100 pb-24 font-sans text-honda-dark relative">
+<body class="bg-gray-100 pb-24 font-sans text-honda-dark relative overflow-x-hidden">
 
     <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-10">
         <div class="flex justify-between items-center max-w-3xl mx-auto">
@@ -19,7 +19,13 @@
                     <p class="text-xs text-gray-300">Técnico Eletromecânico</p>
                 </div>
             </div>
+            
             <div class="flex items-center gap-4">
+                <button class="relative p-2 text-gray-300 hover:text-white transition" onclick="mostrarToastNotificacao()" title="Ver Notificações">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span id="badge-notificacao" class="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full hidden">0</span>
+                </button>
+
                 <a href="index.html" class="text-sm font-bold text-gray-300 hover:text-white transition">voltar à tela inicial</a>
             </div>
         </div>
@@ -36,6 +42,17 @@
         <div id="lista-os-container"></div>
     </main>
 
+    <div id="toast-notificacao" class="fixed top-20 right-4 bg-white border-l-4 border-honda-red shadow-2xl rounded-lg p-4 z-50 transform transition-all duration-500 translate-x-full opacity-0 flex items-start gap-3 w-80">
+        <div class="text-honda-red mt-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+            <h4 class="font-bold text-gray-800 text-sm">Novas Tarefas Recebidas!</h4>
+            <p id="texto-toast" class="text-xs text-gray-600 mt-1 leading-relaxed">Verificando atualizações do supervisor...</p>
+        </div>
+        <button onclick="fecharToast()" class="text-gray-400 hover:text-red-500 ml-auto">&times;</button>
+    </div>
+
     <div id="modal-nova-os" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
             <button onclick="fecharModalNovaOS()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
@@ -46,7 +63,7 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Equipamento</label>
                     <select id="nova-os-maquina" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-honda-red" required>
-                        </select>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Descrição do Problema</label>
@@ -64,7 +81,7 @@
             <p id="historico-nome-maquina" class="text-sm font-bold text-honda-red mb-4 truncate"></p>
             
             <div id="conteudo-historico" class="overflow-y-auto space-y-3 flex-1 pr-2">
-                </div>
+            </div>
         </div>
     </div>
 
