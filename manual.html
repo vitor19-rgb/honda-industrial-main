@@ -69,94 +69,99 @@
         
         <div class="bg-white rounded-t-2xl shadow-sm border-b border-gray-200 flex overflow-x-auto hide-scroll-bar">
             <button onclick="mudarAba('aba-visao')" id="btn-aba-visao" class="tab-btn flex-1 py-4 px-6 text-center font-bold text-honda-red border-b-4 border-honda-red transition whitespace-nowrap">
-                1. Visão Geral
+                1. Visão Geral dos Perfis
             </button>
             <button onclick="mudarAba('aba-tutorial')" id="btn-aba-tutorial" class="tab-btn flex-1 py-4 px-6 text-center font-bold text-gray-500 hover:text-gray-800 border-b-4 border-transparent transition whitespace-nowrap">
                 2. Passo a Passo (OS)
             </button>
             <button onclick="mudarAba('aba-dicas')" id="btn-aba-dicas" class="tab-btn flex-1 py-4 px-6 text-center font-bold text-gray-500 hover:text-gray-800 border-b-4 border-transparent transition whitespace-nowrap">
-                3. Boas Práticas e UI
+                3. Boas Práticas e Lógica
             </button>
         </div>
 
         <div id="aba-visao" class="tab-content active bg-white p-6 md:p-10 rounded-b-2xl shadow-sm">
-            <h2 class="text-3xl font-black text-gray-800 mb-4">Bem-vindo ao Sistema Honda</h2>
+            <h2 class="text-3xl font-black text-gray-800 mb-4">Bem-vindo ao Sistema Honda </h2>
             <p class="text-gray-600 text-lg mb-8 leading-relaxed">
-                Este é o ecossistema digital que conecta a linha de produção, garantindo que as nossas motos sejam construídas sem interrupções. O sistema está dividido em 5 perfis principais, cada um com uma responsabilidade fundamental na fábrica:
+                Este é o ecossistema digital que conecta a linha de produção. Todos os dados salvos em um perfil impactam automaticamente os outros. Conheça as funcionalidades atualizadas de cada setor:
             </p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition">
+                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">NOVO</span>
                     <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 text-xl font-bold">🔧</div>
                     <h3 class="font-bold text-lg mb-2">Técnico</h3>
-                    <p class="text-sm text-gray-600">Atua no chão de fábrica. Utiliza tablets para abrir Ordens de Serviço (OS), relatar problemas nas máquinas e consumir peças do estoque.</p>
+                    <p class="text-sm text-gray-600">Atua no chão de fábrica. Agora pode <strong>consultar o histórico de manutenções</strong> do equipamento antes de atuar, abrir OS específicas via Modal e abater peças do estoque ao vivo.</p>
                 </div>
-                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition">
+                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">NOVO</span>
                     <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 text-xl font-bold">📐</div>
                     <h3 class="font-bold text-lg mb-2">Engenheiro</h3>
-                    <p class="text-sm text-gray-600">Focado na confiabilidade. Cadastra os ativos da fábrica, cria planos de manutenção preventiva e analisa indicadores de falha (MTBF/MTTR).</p>
+                    <p class="text-sm text-gray-600">Focado na confiabilidade. Além de cadastrar ativos, agora o painel gera automaticamente os cálculos de MTBF/MTTR e permite <strong>exportar relatórios executivos em PDF limpo</strong>.</p>
                 </div>
-                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition">
+                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">NOVO</span>
                     <div class="w-12 h-12 bg-red-100 text-honda-red rounded-full flex items-center justify-center mb-4 text-xl font-bold">📋</div>
                     <h3 class="font-bold text-lg mb-2">Supervisor</h3>
-                    <p class="text-sm text-gray-600">O maestro da equipa. Distribui as OS geradas para os técnicos corretos, define as prioridades de emergência e valida as horas trabalhadas.</p>
+                    <p class="text-sm text-gray-600">O maestro da equipe. Agora possui um painel de <strong>Status em Tempo Real</strong> para ver as máquinas em conserto e botões para partilhar links dos relatórios diários com um clique.</p>
                 </div>
-                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition">
+                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">NOVO</span>
                     <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mb-4 text-xl font-bold">📦</div>
                     <h3 class="font-bold text-lg mb-2">Almoxarifado</h3>
-                    <p class="text-sm text-gray-600">Gere o estoque físico. Controla a entrada de novas peças e gere as baixas que os técnicos fazem durante as reparações das máquinas.</p>
+                    <p class="text-sm text-gray-600">Gere o estoque. O sistema agora <strong>bloqueia automaticamente</strong> a saída de peças esgotadas e apresenta um <strong>Ranking Dinâmico</strong> das máquinas que mais consomem materiais.</p>
                 </div>
-                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition lg:col-span-2">
+                <div class="border border-gray-100 p-6 rounded-xl bg-gray-50 hover:shadow-md transition lg:col-span-2 relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">NOVO</span>
                     <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-4 text-xl font-bold">📈</div>
                     <h3 class="font-bold text-lg mb-2">Gestor Executivo</h3>
-                    <p class="text-sm text-gray-600">Visão macro. Acompanha os custos totais, orçamento, aprova investimentos de alto valor (novas máquinas) e consome os relatórios gerados por todos os setores.</p>
+                    <p class="text-sm text-gray-600">Painel inteligente. Lê todo o banco de dados para medir a <strong>produtividade da equipe</strong>, aprovar investimentos milionários (CAPEX) analisando a disponibilidade do ativo e cruzar metas em gráficos Chart.js.</p>
                 </div>
             </div>
         </div>
 
         <div id="aba-tutorial" class="tab-content bg-white p-6 md:p-10 rounded-b-2xl shadow-sm">
-            <h2 class="text-2xl font-black text-gray-800 mb-2">Jornada do Técnico: Como abrir uma OS</h2>
-            <p class="text-gray-600 mb-10">Siga a linha do tempo abaixo para entender o ciclo de vida de um chamado técnico no chão de fábrica.</p>
+            <h2 class="text-2xl font-black text-gray-800 mb-2">Jornada do Técnico: Ciclo de uma Ordem de Serviço</h2>
+            <p class="text-gray-600 mb-10">Siga a linha do tempo abaixo para entender como a nova lógica de apontamentos funciona no tablet do chão de fábrica.</p>
 
             <div class="relative pl-4 md:pl-0">
                 
                 <div class="timeline-step relative flex flex-col md:flex-row gap-6 mb-10 z-10">
                     <div class="w-12 h-12 bg-honda-dark text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">1</div>
                     <div class="bg-gray-50 border border-gray-200 p-5 rounded-xl flex-1 shadow-sm">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">Acesso e Identificação (Login)</h3>
-                        <p class="text-sm text-gray-600">Aceda ao sistema utilizando a credencial da rede corporativa. Na tela de perfis, selecione o módulo <strong>Técnico</strong> para entrar no seu painel de controlo pessoal.</p>
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">Acesso e Identificação</h3>
+                        <p class="text-sm text-gray-600">Na tela principal, faça o Login corporativo e selecione o módulo <strong>Técnico</strong>. Você verá a sua fila pessoal de trabalho distribuída pelo Supervisor.</p>
                     </div>
                 </div>
 
                 <div class="timeline-step relative flex flex-col md:flex-row gap-6 mb-10 z-10">
                     <div class="w-12 h-12 bg-honda-red text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">2</div>
-                    <div class="bg-gray-50 border border-gray-200 p-5 rounded-xl flex-1 shadow-sm">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">Buscar Equipamento</h3>
-                        <p class="text-sm text-gray-600">Clique no botão grande e vermelho <strong>"NOVA OS"</strong>. Utilize o tablet para ler o QR Code colado na máquina ou procure o equipamento na lista para iniciar o processo.</p>
+                    <div class="bg-gray-50 border border-gray-200 p-5 rounded-xl flex-1 shadow-sm border-l-4 border-l-honda-red">
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">Abertura via Modal Inteligente</h3>
+                        <p class="text-sm text-gray-600">Para reportar falhas inesperadas, clique em <strong>"ABRIR NOVA OS EMERGÊNCIAL"</strong>. Um formulário interativo (Modal) surgirá para você selecionar exatamente qual máquina quebrou, a partir do banco de dados oficial cadastrado pela Engenharia.</p>
                     </div>
                 </div>
 
                 <div class="timeline-step relative flex flex-col md:flex-row gap-6 mb-10 z-10">
-                    <div class="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">3</div>
+                    <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">3</div>
                     <div class="bg-gray-50 border border-gray-200 p-5 rounded-xl flex-1 shadow-sm">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">Registrar a Falha (Diagnóstico)</h3>
-                        <p class="text-sm text-gray-600">Preencha o campo de texto explicando claramente o que aconteceu (ex: "Queda de pressão no cilindro"). Seja preciso, pois a Engenharia usará estes dados para análises futuras.</p>
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">Consultar Histórico e Diagnóstico</h3>
+                        <p class="text-sm text-gray-600"><strong>Dica de Ouro:</strong> Antes de atuar, abra os detalhes do cartão e clique em <em>"Consultar Histórico deste Equipamento"</em>. O sistema revelará se essa máquina tem vícios de quebra. Em seguida, preencha o seu diagnóstico técnico.</p>
                     </div>
                 </div>
 
                 <div class="timeline-step relative flex flex-col md:flex-row gap-6 mb-10 z-10">
-                    <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">4</div>
+                    <div class="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">4</div>
                     <div class="bg-gray-50 border border-gray-200 p-5 rounded-xl flex-1 shadow-sm">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">Consumir Peças e Anexar Fotos</h3>
-                        <p class="text-sm text-gray-600">No formulário da OS, selecione as peças que retirou do Almoxarifado. Em seguida, utilize a opção "Tirar Foto" para anexar evidências visuais do problema reparado.</p>
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">Consumo de Peças (Bloqueio Automático)</h3>
+                        <p class="text-sm text-gray-600">Selecione as peças utilizadas e informe a quantidade. <strong>Atenção:</strong> O sistema possui integração em tempo real; se o Almoxarifado estiver com estoque zero, você será impedido de registrar a peça falsa!</p>
                     </div>
                 </div>
 
                 <div class="timeline-step relative flex flex-col md:flex-row gap-6 z-10">
                     <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-md">5</div>
                     <div class="bg-gray-50 border border-gray-200 p-5 rounded-xl flex-1 shadow-sm">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">Finalizar a OS</h3>
-                        <p class="text-sm text-gray-600">Insira o tempo gasto (em minutos) e altere o status para <strong>Finalizada</strong>. O sistema irá notificar automaticamente o Supervisor para validação das suas horas!</p>
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">Finalização e KPI do Gestor</h3>
+                        <p class="text-sm text-gray-600">Insira o seu tempo gasto e altere o status para <strong>Finalizada</strong>. Ao salvar, as suas horas vão para validação do Supervisor e a sua OS concluída sobe diretamente para o gráfico de produtividade do Gerente Geral.</p>
                     </div>
                 </div>
 
@@ -164,7 +169,7 @@
         </div>
 
         <div id="aba-dicas" class="tab-content bg-white p-6 md:p-10 rounded-b-2xl shadow-sm">
-            <h2 class="text-2xl font-black text-gray-800 mb-6">Boas Práticas e Usabilidade</h2>
+            <h2 class="text-2xl font-black text-gray-800 mb-6">Lógicas do Sistema e Usabilidade</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
@@ -174,45 +179,44 @@
                         <li class="flex items-start gap-4">
                             <div class="w-6 h-6 rounded bg-red-500 shrink-0 mt-1"></div>
                             <div>
-                                <h4 class="font-bold text-gray-800">Vermelho (Crítico / Alerta)</h4>
-                                <p class="text-sm text-gray-600">Indica que o estoque de uma peça chegou a ZERO, que uma máquina está totalmente parada (OS de Emergência) ou que um prazo SLA foi violado.</p>
+                                <h4 class="font-bold text-gray-800">Vermelho (Crítico / Bloqueio)</h4>
+                                <p class="text-sm text-gray-600">Cor de alerta máximo. Usada quando uma máquina está parada, quando um prazo SLA falha e, no Almoxarifado, para <strong>alertar estoque ZERADO</strong> impedindo os técnicos de sacarem a peça.</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-4">
                             <div class="w-6 h-6 rounded bg-yellow-400 shrink-0 mt-1"></div>
                             <div>
                                 <h4 class="font-bold text-gray-800">Amarelo (Atenção / Aguardando)</h4>
-                                <p class="text-sm text-gray-600">Mostra que um item está abaixo do estoque mínimo de segurança ou que uma OS está parada a aguardar a chegada de peças.</p>
+                                <p class="text-sm text-gray-600">Usado para notificar que uma OS parou à espera de peças, ou que um item desceu abaixo do nível de segurança de compra.</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-4">
                             <div class="w-6 h-6 rounded bg-green-500 shrink-0 mt-1"></div>
                             <div>
                                 <h4 class="font-bold text-gray-800">Verde (Operacional / Finalizado)</h4>
-                                <p class="text-sm text-gray-600">Tudo está a funcionar perfeitamente. O SLA está a ser cumprido, a peça tem estoque saudável ou a Ordem de Serviço foi concluída com êxito.</p>
+                                <p class="text-sm text-gray-600">Sinal de sucesso. O SLA foi cumprido, o orçamento está saudável, a Ordem de Serviço foi concluída ou o investimento foi aprovado.</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-4">
                             <div class="w-6 h-6 rounded bg-blue-500 shrink-0 mt-1"></div>
                             <div>
                                 <h4 class="font-bold text-gray-800">Azul (Em Andamento)</h4>
-                                <p class="text-sm text-gray-600">Representa uma ação que está a acontecer neste momento na fábrica, como um técnico a atuar numa máquina.</p>
+                                <p class="text-sm text-gray-600">Informa ao Supervisor, na sua tela de Tempo Real, que uma ação produtiva está a ocorrer neste preciso momento na fábrica.</p>
                             </div>
                         </li>
                     </ul>
                 </div>
 
-                <div class="bg-gray-50 border border-gray-200 p-6 rounded-xl">
+                <div class="bg-gray-50 border border-gray-200 p-6 rounded-xl h-fit">
                     <h3 class="font-bold text-lg text-gray-800 border-b pb-2 mb-4 flex items-center">
-                        <span class="mr-2">📱</span> Uso em Tablets (Chão de Fábrica)
+                        <span class="mr-2">📱</span> Design UI/UX: Chão de Fábrica
                     </h3>
-                    <p class="text-sm text-gray-600 mb-4">A interface dos Técnicos e Supervisores foi construída com o conceito de <strong>"Fat Finger Design"</strong>. Isso significa que foi pensada para ecrãs de toque e luvas grossas.</p>
+                    <p class="text-sm text-gray-600 mb-4">A interface dos Técnicos e Supervisores obedece ao conceito de <strong>"Fat Finger Design"</strong> (Design para toques amplos).</p>
                     
                     <ul class="list-disc pl-5 text-sm text-gray-600 space-y-2">
-                        <li><strong>Botões Grandes:</strong> Pode tocar sem medo. Todos os botões principais têm no mínimo 48px de altura.</li>
-                        <li><strong>Câmera Integrada:</strong> Sempre que precisar anexar uma foto ou ler um QR code, o sistema acede à câmara traseira do seu tablet automaticamente.</li>
-                        <li><strong>Menus Recolhíveis:</strong> Clique nos títulos dos cartões das OS para expandir ou esconder os detalhes. Isso mantém o seu ecrã organizado.</li>
-                        <li><strong>Sincronização:</strong> O sistema grava os dados no seu navegador (localStorage). Certifique-se de salvar os apontamentos antes de fechar o separador.</li>
+                        <li><strong>Áreas de Toque:</strong> Os botões não têm menos de 48px de altura, evitando erros ao usar luvas grossas.</li>
+                        <li><strong>Esconder Conteúdo (Sanfona):</strong> Para evitar a fadiga visual (sobrecarga cognitiva), os detalhes das OS ficam escondidos e só abrem quando o utilizador clica.</li>
+                        <li><strong>Relatórios Limpos:</strong> Nas telas da Engenharia e Gestão, ao clicar em "Exportar PDF", o sistema roda um script CSS (<em>@media print</em>) que esconde os botões e entrega um documento pronto para a diretoria.</li>
                     </ul>
                 </div>
 
@@ -223,23 +227,19 @@
 
     <script>
         function mudarAba(abaId) {
-            // 1. Esconde todos os conteúdos das abas
             const conteudos = document.querySelectorAll('.tab-content');
             conteudos.forEach(conteudo => {
                 conteudo.classList.remove('active');
             });
 
-            // 2. Remove o estilo de "ativo" (vermelho) de todos os botões
             const botoes = document.querySelectorAll('.tab-btn');
             botoes.forEach(botao => {
                 botao.classList.remove('text-honda-red', 'border-honda-red');
                 botao.classList.add('text-gray-500', 'border-transparent');
             });
 
-            // 3. Mostra o conteúdo da aba selecionada
             document.getElementById(abaId).classList.add('active');
 
-            // 4. Pinta o botão selecionado de vermelho
             const btnSelecionado = document.getElementById('btn-' + abaId);
             btnSelecionado.classList.remove('text-gray-500', 'border-transparent');
             btnSelecionado.classList.add('text-honda-red', 'border-honda-red');
