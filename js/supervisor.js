@@ -1,8 +1,7 @@
 // js/supervisor.js
 
-// 1. INICIALIZAÇÃO DE DADOS (Equipa e adequação das OS)
+// 1. INICIALIZAÇÃO DE DADOS 
 function inicializarDadosSupervisor() {
-    // Lista de técnicos da equipa
     let equipe = localStorage.getItem('honda_equipe');
     if (!equipe) {
         const tecnicos = [
@@ -13,7 +12,6 @@ function inicializarDadosSupervisor() {
         localStorage.setItem('honda_equipe', JSON.stringify(tecnicos));
     }
 
-    // Adequar as OS existentes para terem os novos campos do Supervisor
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
     let atualizado = false;
 
@@ -21,7 +19,7 @@ function inicializarDadosSupervisor() {
         if (!os.prioridade) { os.prioridade = "Média"; atualizado = true; }
         if (!os.tecnicoId) { os.tecnicoId = null; atualizado = true; }
         if (!os.sla) { os.sla = "No Prazo"; atualizado = true; }
-        if (!os.tempoGasto) { os.tempoGasto = Math.floor(Math.random() * 60) + 30; atualizado = true; } // Tempo simulado
+        if (!os.tempoGasto) { os.tempoGasto = Math.floor(Math.random() * 60) + 30; atualizado = true; } 
         if (!os.horasValidadas) { os.horasValidadas = false; atualizado = true; }
     });
 
@@ -30,27 +28,23 @@ function inicializarDadosSupervisor() {
     }
 }
 
-// 2. RENDERIZAÇÃO DO PAINEL (Carga de trabalho e KPIs)
+// 2. RENDERIZAÇÃO DO PAINEL
 function renderizarDashboardSupervisor() {
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
     let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
 
-    // KPI: SLAs
     let atrasadas = osLista.filter(os => os.sla === 'Atrasado' && os.status !== 'Finalizada').length;
     let emergencias = osLista.filter(os => os.prioridade === 'Emergência' && os.status !== 'Finalizada').length;
     
     document.getElementById('kpi-atrasadas').innerText = atrasadas;
     document.getElementById('kpi-emergencias').innerText = emergencias;
 
-    // Carga de Trabalho da Equipa
     const listaEquipe = document.getElementById('lista-carga-equipe');
     listaEquipe.innerHTML = '';
 
     equipe.forEach(tec => {
-        // Conta quantas OS ativas este técnico tem
         let osAtivas = osLista.filter(os => os.tecnicoId === tec.id && os.status !== 'Finalizada').length;
         
-        // Define a cor da barra de carga (verde se poucas, amarelo/vermelho se muitas)
         let corBarra = 'bg-green-500';
         if (osAtivas >= 3) corBarra = 'bg-yellow-500';
         if (osAtivas >= 5) corBarra = 'bg-red-500';
@@ -71,17 +65,13 @@ function renderizarDashboardSupervisor() {
     });
 }
 
-// 3. GESTÃO E DISTRIBUIÇÃO DE TAREFAS (Aguardando Atribuição)
 function renderizarDistribuicao() {
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
     let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
     const container = document.getElementById('lista-distribuicao');
     container.innerHTML = '';
 
-    // Filtra OS que estão pendentes ou aguardando técnico
     let osPendentes = osLista.filter(os => os.status === 'Pendente' || os.tecnicoId === null);
-
-    // Ordena por prioridade (Emergência > Alta > Média > Baixa)
     const pesoPrioridade = { "Emergência": 4, "Alta": 3, "Média": 2, "Baixa": 1 };
     osPendentes.sort((a, b) => pesoPrioridade[b.prioridade] - pesoPrioridade[a.prioridade]);
 
@@ -90,11 +80,8 @@ function renderizarDistribuicao() {
         return;
     }
 
-    // Opções de Técnicos para o Select
     let optionsTecnicos = '<option value="">Atribuir a um Técnico...</option>';
-    equipe.forEach(tec => {
-        optionsTecnicos += `<option value="${tec.id}">${tec.nome}</option>`;
-    });
+    equipe.forEach(tec => { optionsTecnicos += `<option value="${tec.id}">${tec.nome}</option>`; });
 
     osPendentes.forEach(os => {
         let corPrioridade = os.prioridade === 'Emergência' ? 'bg-red-600 text-white animate-pulse' : 
@@ -125,7 +112,37 @@ function renderizarDistribuicao() {
     });
 }
 
-// 4. VALIDAÇÃO DE HORAS (OS Finalizadas)
+// NOVO: ACOMPANHAR STATUS EM TEMPO REAL
+function renderizarStatusTempoReal() {
+    let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
+    let equipe = JSON.parse(localStorage.getItem('honda_equipe')) || [];
+    const container = document.getElementById('lista-tempo-real');
+    container.innerHTML = '';
+
+    let osAtivas = osLista.filter(os => os.status === 'Em Andamento' || os.status === 'Aguardando Peça');
+
+    if (osAtivas.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm italic p-2">Nenhuma OS em execução no momento.</p>';
+        return;
+    }
+
+    osAtivas.forEach(os => {
+        let corStatus = os.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800';
+        let tecObj = equipe.find(t => t.id === os.tecnicoId);
+        let tecNome = tecObj ? tecObj.nome : 'Sem técnico';
+
+        container.innerHTML += `
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2 flex justify-between items-center shadow-sm">
+                <div>
+                    <span class="font-bold text-gray-800 text-sm">OS #${os.id}</span>
+                    <p class="text-xs text-gray-600 font-medium">Técnico: ${tecNome}</p>
+                </div>
+                <span class="px-2 py-1 rounded text-xs font-bold ${corStatus}">${os.status}</span>
+            </div>
+        `;
+    });
+}
+
 function renderizarValidacaoHoras() {
     let osLista = JSON.parse(localStorage.getItem('honda_os_lista')) || [];
     const container = document.getElementById('lista-validacao');
@@ -164,7 +181,7 @@ function atribuirOS(idOS) {
     let os = osLista.find(o => o.id === idOS);
     if(os) {
         os.tecnicoId = tecnicoId;
-        os.status = "Em Andamento"; // Muda o status automaticamente
+        os.status = "Em Andamento"; 
         localStorage.setItem('honda_os_lista', JSON.stringify(osLista));
         alert(`OS #${idOS} atribuída e enviada para o tablet do técnico!`);
         atualizarTudo();
@@ -199,17 +216,21 @@ function validarHoras(idOS) {
 }
 
 function gerarRelatorioOperacional() {
-    alert("Gerando Relatório Consolidado... Preparando PDF das Ordens de Serviço.");
-    window.print(); // Simula a exportação abrindo a janela de impressão nativa do navegador
+    window.print(); 
+}
+
+// NOVO: Função para o botão de Compartilhar
+function compartilharRelatorio() {
+    alert("✅ Link do relatório copiado para a área de transferência! Pode agora enviar via e-mail ou chat corporativo.");
 }
 
 function atualizarTudo() {
     renderizarDashboardSupervisor();
     renderizarDistribuicao();
+    renderizarStatusTempoReal(); // Atualiza a nova lista
     renderizarValidacaoHoras();
 }
 
-// Inicia a página
 window.onload = () => {
     inicializarDadosSupervisor();
     atualizarTudo();

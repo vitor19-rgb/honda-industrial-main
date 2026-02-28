@@ -11,84 +11,112 @@
     </script>
     <link rel="stylesheet" href="css/global.css">
     <style>
-        /* Estilos para quando o Gestor clicar em Exportar PDF */
+        /* Ocultar botões na hora de gerar o PDF (Relatório) */
         @media print {
             header, .no-print { display: none !important; }
-            body { background: white; }
+            body { background: white; padding: 0; }
             .print-break { page-break-before: always; }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="bg-gray-50 min-h-screen font-sans">
 
-    <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-20 flex justify-between items-center">
-        <div class="flex items-center gap-4">
+    <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-20 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4 w-full md:w-auto">
             <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center font-bold shadow-sm">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
             </div>
             <div>
                 <h1 class="font-bold text-lg leading-tight">Dashboard Executivo</h1>
-                <p class="text-xs text-gray-300">Visão Estratégica e Financeira</p>
+                <p class="text-xs text-gray-300">Visão Estratégica, Custos e Produtividade</p>
             </div>
         </div>
-        <div class="flex items-center gap-4">
-            <button onclick="exportarRelatorioExecutivo()" class="no-print bg-white text-honda-dark px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition flex items-center">
-                📄 Exportar PDF
+        <div class="flex items-center gap-4 w-full md:w-auto">
+            <button onclick="emitirRelatorioGerencial()" class="no-print bg-honda-red text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-red-800 transition flex items-center shadow-lg border border-red-900 w-full justify-center md:w-auto">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Emitir Relatório Gerencial
             </button>
-            <a href="index.html" class="no-print text-sm font-bold text-gray-300 hover:text-white transition">Sair</a>
+            <a href="index.html" class="no-print text-sm font-bold text-gray-300 hover:text-white transition whitespace-nowrap">Voltar</a>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto p-4 lg:p-8 mt-4">
+    <main class="max-w-7xl mx-auto p-4 lg:p-8 mt-2">
         
+        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-xs mb-3">Visão Geral Financeira e Operacional</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 col-span-1 md:col-span-2">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <p class="text-sm font-bold text-gray-500 uppercase tracking-wide">Despesa Mensal de Manutenção</p>
-                        <h2 id="kpi-custos" class="text-4xl font-black text-gray-800 mt-1">R$ 0,00</h2>
-                    </div>
-                    <div class="bg-red-50 text-honda-red p-3 rounded-lg"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-3 mb-1">
-                    <div id="barra-orcamento" class="bg-green-500 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
-                </div>
-                <p id="kpi-percentual-orcamento" class="text-xs text-gray-500 text-right font-bold">0% do limite mensal</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-honda-red flex flex-col justify-center">
+                <span class="text-xs text-gray-500 font-bold uppercase">Custos Totais de Manutenção</span>
+                <span id="kpi-custos" class="text-3xl font-black text-gray-800 mt-1">R$ 0,00</span>
+                <span class="text-xs text-gray-400 mt-1">Soma de peças e horas operacionais</span>
             </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center items-center text-center">
-                <p class="text-sm font-bold text-gray-500 uppercase tracking-wide">Backlog (OS Acumuladas)</p>
-                <h2 id="kpi-backlog" class="text-5xl font-black text-orange-500 mt-2">0</h2>
-                <p class="text-xs text-gray-400 mt-2">Volume de chamados pendentes na fábrica</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500 flex flex-col justify-center">
+                <span class="text-xs text-gray-500 font-bold uppercase">Orçamento Disponível</span>
+                <span id="kpi-orcamento" class="text-3xl font-black text-green-600 mt-1">R$ 0,00</span>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-3">
+                    <div id="barra-orcamento" class="bg-green-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500 flex flex-col justify-center">
+                <span class="text-xs text-gray-500 font-bold uppercase">Backlog (OS Acumuladas)</span>
+                <span id="kpi-backlog" class="text-4xl font-black text-orange-500 mt-1">0</span>
+                <span class="text-xs text-gray-400 mt-1">Chamados aguardando finalização</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2">Balanço de Estratégia (Prev. vs Corr.)</h3>
-                <div class="relative h-64">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
+                <div class="flex items-center mb-4 border-b pb-2">
+                    <span class="text-xl mr-2">👥</span>
+                    <h3 class="font-bold text-gray-800 text-lg">Produtividade da Equipa Técnica</h3>
+                </div>
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+                                <th class="p-3 rounded-tl-lg">Técnico</th>
+                                <th class="p-3 text-center">OS Concluídas</th>
+                                <th class="p-3 text-center rounded-tr-lg">Tempo Médio de Resolução</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-desempenho">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-800 text-sm mb-4 border-b pb-2 text-center">Balanço de Manutenção</h3>
+                <div class="relative h-48">
                     <canvas id="chartManutencao"></canvas>
                 </div>
-                <p class="text-xs text-center text-gray-500 mt-4">Meta corporativa: 80% Preventiva / 20% Corretiva</p>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2">Top Máquinas Problemáticas (Falhas)</h3>
-                <div class="relative h-64">
-                    <canvas id="chartFalhas"></canvas>
-                </div>
-            </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-purple-200 print-break">
-            <div class="flex items-center mb-4 border-b pb-2">
-                <span class="text-2xl mr-2">💼</span>
-                <h3 class="font-bold text-gray-800 text-lg">Aprovações Executivas Pendentes</h3>
-            </div>
-            <p class="text-sm text-gray-500 mb-6">Revisão de paragens de linha e investimentos em CAPEX/OPEX submetidos pela Engenharia.</p>
+        <h2 class="text-gray-500 font-bold uppercase tracking-wider text-xs mb-3 mt-8 print-break">Painel de Decisões Executivas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-100 p-6 rounded-2xl border border-gray-300">
             
-            <div id="lista-aprovacoes" class="space-y-4">
+            <div>
+                <div class="flex items-center mb-4">
+                    <span class="text-xl mr-2">⏱️</span>
+                    <h3 class="font-bold text-gray-800 text-md">Solicitações de Parada Programada</h3>
                 </div>
+                <p class="text-xs text-gray-500 mb-4">Aprove paragens de linha para manutenções preventivas pesadas.</p>
+                <div id="lista-paradas" class="space-y-3">
+                    </div>
+            </div>
+
+            <div>
+                <div class="flex items-center mb-4">
+                    <span class="text-xl mr-2">🏗️</span>
+                    <h3 class="font-bold text-gray-800 text-md">Investimento em Novos Ativos (CAPEX)</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">Analise a disponibilidade do ativo antes de aprovar compras caras.</p>
+                <div id="lista-investimentos" class="space-y-3">
+                    </div>
+            </div>
+
         </div>
 
     </main>

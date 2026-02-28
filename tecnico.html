@@ -8,7 +8,7 @@
     <script>tailwind.config = { theme: { extend: { colors: { honda: { red: '#cc0000', dark: '#333333' } } } } }</script>
     <link rel="stylesheet" href="css/global.css">
 </head>
-<body class="bg-gray-100 pb-24 font-sans text-honda-dark">
+<body class="bg-gray-100 pb-24 font-sans text-honda-dark relative">
 
     <header class="bg-honda-dark text-white p-4 shadow-md sticky top-0 z-10">
         <div class="flex justify-between items-center max-w-3xl mx-auto">
@@ -20,25 +20,53 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <a href="perfis.html" class="text-sm font-bold text-gray-300 hover:text-white transition">Voltar</a>
-                <button onclick="fazerLogout()" class="p-2 text-gray-300 hover:text-white transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                </button>
+                <a href="index.html" class="text-sm font-bold text-gray-300 hover:text-white transition">voltar à tela inicial</a>
             </div>
         </div>
     </header>
 
     <main class="max-w-3xl mx-auto p-4 mt-2">
-        <button onclick="criarNovaOS()" class="touch-target w-full bg-red-600 hover:bg-red-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl flex items-center justify-center mb-6 transform transition active:scale-95 border-b-4 border-red-800">
+        <button onclick="abrirModalNovaOS()" class="touch-target w-full bg-red-600 hover:bg-red-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl flex items-center justify-center mb-6 transform transition active:scale-95 border-b-4 border-red-800">
             <svg class="w-7 h-7 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            NOVA OS (EMERGENCIAL)
+            ABRIR NOVA OS EMERGÊNCIAL
         </button>
 
         <h2 class="text-gray-500 font-bold uppercase tracking-wider text-sm mb-4 px-1">Minhas Ordens de Serviço</h2>
 
         <div id="lista-os-container"></div>
-        
     </main>
+
+    <div id="modal-nova-os" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+            <button onclick="fecharModalNovaOS()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
+            <h2 class="font-black text-xl mb-1 text-gray-800">Nova Corretiva</h2>
+            <p class="text-xs text-gray-500 mb-4">Registe a máquina que apresentou falha na linha de produção.</p>
+            
+            <form onsubmit="criarNovaOSForm(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Equipamento</label>
+                    <select id="nova-os-maquina" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-honda-red" required>
+                        </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Descrição do Problema</label>
+                    <textarea id="nova-os-descricao" rows="3" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-honda-red" placeholder="O que aconteceu com a máquina?" required></textarea>
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition">Gerar Ordem de Serviço</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-historico" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative max-h-[80vh] flex flex-col">
+            <button onclick="fecharModalHistorico()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 font-bold text-xl">&times;</button>
+            <h2 class="font-black text-lg mb-1 text-gray-800">Histórico de Manutenção</h2>
+            <p id="historico-nome-maquina" class="text-sm font-bold text-honda-red mb-4 truncate"></p>
+            
+            <div id="conteudo-historico" class="overflow-y-auto space-y-3 flex-1 pr-2">
+                </div>
+        </div>
+    </div>
 
     <script src="js/tecnico.js"></script>
 </body>

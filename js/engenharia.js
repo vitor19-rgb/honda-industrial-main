@@ -135,7 +135,7 @@ function renderizarAprovacoes() {
                     <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-bold">Crítica</span>
                 </div>
                 <p class="text-sm text-gray-600 mb-2"><strong>Diagnóstico do Técnico:</strong> ${os.diagnostico}</p>
-                <div class="flex gap-2 mt-3">
+                <div class="flex gap-2 mt-3 no-print">
                     <button onclick="aprovarOS('${os.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-700">Aprovar e Finalizar</button>
                     <button onclick="reprovarOS('${os.id}')" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-400">Devolver ao Técnico</button>
                 </div>
@@ -164,6 +164,12 @@ function reprovarOS(id) {
         alert(`OS #${id} devolvida para o técnico corrigir.`);
         renderizarAprovacoes();
     }
+}
+
+// 6. RELATÓRIO DE CONFIABILIDADE (NOVO)
+function exportarRelatorioEngenharia() {
+    alert("Gerando Relatório de Confiabilidade (MTBF/MTTR)...\nPreparando documento em PDF.");
+    window.print();
 }
 
 // Inicializa a página
